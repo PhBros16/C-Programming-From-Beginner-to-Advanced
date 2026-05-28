@@ -37,7 +37,7 @@ An interactive C programming guide — from absolute zero to advanced topics —
 
 - **Frontend:** Vanilla HTML/CSS/JS (single file)
 - **Compiler:** [Piston API](https://emkc.org) — free, public, no key required
-- **AI:** Google Gemini 1.5 Flash — free tier (1M tokens/day)
+- **AI:** Google Gemini 2.0 Flash — free tier (1M tokens/day)
 - **Hosting:** Vercel (free)
 - **Storage:** localStorage (client-side, no database)
 
@@ -72,6 +72,17 @@ An interactive C programming guide — from absolute zero to advanced topics —
 ├── vercel.json       — Routing configuration
 └── README.md
 ```
+
+---
+
+## Changelog
+
+### v1.1.0
+- fix: runtime error detection in Piston compiler (`&&` → `||`)
+- fix: AI evaluation fallback now returns `null` instead of auto-approving code
+- fix: `runEx` handles unavailable AI without awarding XP or registering failure
+- fix: upgrade Gemini model to `2.0-flash`
+- chore: remove redundant API rewrite from `vercel.json`
 
 ---
 
