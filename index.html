@@ -1597,7 +1597,7 @@ async function compilePiston(code,stdin){
   const compile=d.compile||{};const run=d.run||{};
   if((compile.code!==undefined&&compile.code!==0)&&(compile.stderr||compile.output))
     return{ok:false,type:'compile',output:compile.stderr||compile.output};
-  if(run.code!==0&&run.signal)
+  if(run.code!==0||run.signal)
     return{ok:false,type:'runtime',output:run.stderr||run.output||'Erro em execução'};
   return{ok:true,output:run.stdout||run.output||''};
 }
@@ -1615,7 +1615,7 @@ async function evalAI(id,code,stdout){
     if(data.error)throw new Error(data.error);
     const clean=data.text.replace(/```json|```/g,'').trim();
     return JSON.parse(clean);
-  }catch(e){return{passed:true,feedback:'Compilou e executou! (avaliação IA indisponível)'};}
+  }catch(e){return{passed:null,feedback:'Avaliação IA indisponível — resultado não computado.'};}
 }
 
 async function explainError(id,code,err){
@@ -1674,7 +1674,12 @@ async function runEx(id){
     const eval_=await evalAI(id,code,result.output);
     if(loadEl)loadEl.style.display='none';
     if(outEl)outEl.style.display='block';
-    if(eval_.passed){
+if(eval_.passed===null){
+      outEl.className='ex-output cerr';
+      statEl.textContent='⚠️ Avaliação indisponível';
+      bodyEl.innerHTML=`<b>Saída:</b>\n${escH(result.output||'(sem output)')}\n<div class="ai-fb"><div class="afl">🤖 Avaliação da IA</div>${escH(eval_.feedback)}</div>`;
+      if(btnEl)btnEl.disabled=false;
+    }else if(eval_.passed){
       outEl.className='ex-output pass';
       statEl.textContent='✅ Compilou e passou!';
       const isAssisted=(S.fails[id]||0)>=3&&document.getElementById('sol-'+id)?.style.display==='block';
