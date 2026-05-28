@@ -1,0 +1,2114 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>C: Do Zero ao Mestre</title>
+<link href="https://fonts.googleapis.com/css2?family=Fira+Code:wght@300;400;500;600&family=Syne:wght@400;600;700;800&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#0d0f0e;--bg2:#131614;--bg3:#191c19;--bg4:#1f221f;
+  --amber:#e8a04a;--amber2:#f5c070;--amber3:#ffd080;
+  --green:#4ec994;--green2:#7dddb0;
+  --red:#e06c75;--red2:#f08090;
+  --blue:#61afef;--purple:#c678dd;
+  --gray:#5c6370;--gray2:#8a9199;
+  --text:#abb2bf;--text2:#d4dae4;--text3:#eef0f3;
+  --border:#252825;--border2:#2f332f;
+  --sidebar-w:272px;--topbar-h:52px;
+}
+*{margin:0;padding:0;box-sizing:border-box}
+html{scroll-behavior:smooth}
+body{font-family:'Syne',sans-serif;background:var(--bg);color:var(--text);min-height:100vh;font-size:15px;line-height:1.7;overflow-x:hidden}
+#topbar{position:fixed;top:0;left:0;right:0;height:var(--topbar-h);background:var(--bg2);border-bottom:1px solid var(--border2);display:flex;align-items:center;padding:0 14px 0 calc(var(--sidebar-w)+14px);z-index:200;gap:14px}
+.tb-left{display:flex;align-items:center;gap:12px;flex:1;min-width:0}
+.tb-level{display:flex;align-items:center;gap:7px;background:rgba(232,160,74,.12);border:1px solid rgba(232,160,74,.25);padding:3px 11px;border-radius:20px;white-space:nowrap;flex-shrink:0}
+.tb-lv-num{font-family:'Fira Code',monospace;font-size:10px;color:var(--gray2)}
+.tb-lv-name{font-size:12px;font-weight:700;color:var(--amber)}
+.tb-xp-wrap{flex:1;max-width:180px;min-width:80px}
+.tb-xp-label{font-family:'Fira Code',monospace;font-size:9px;color:var(--gray);margin-bottom:2px}
+.tb-xp-bar{background:var(--bg4);border-radius:3px;height:5px;overflow:hidden}
+.tb-xp-fill{background:linear-gradient(90deg,var(--amber),var(--amber3));height:100%;border-radius:3px;transition:width .5s ease;width:0%}
+.tb-right{display:flex;align-items:center;gap:10px;flex-shrink:0}
+.tb-streak{font-family:'Fira Code',monospace;font-size:12px;color:var(--amber2)}
+.tb-pct{font-family:'Fira Code',monospace;font-size:10px;color:var(--gray2)}
+.tb-user{font-size:12px;font-weight:700;color:var(--text2)}
+.tb-btn{background:none;border:1px solid var(--border2);color:var(--gray2);width:28px;height:28px;border-radius:6px;cursor:pointer;font-size:13px;display:flex;align-items:center;justify-content:center;transition:all .15s;flex-shrink:0}
+.tb-btn:hover{border-color:var(--amber);color:var(--amber)}
+#sidebar{width:var(--sidebar-w);position:fixed;top:var(--topbar-h);left:0;height:calc(100vh - var(--topbar-h));background:var(--bg2);border-right:1px solid var(--border2);overflow-y:auto;z-index:100;display:flex;flex-direction:column}
+#sidebar::-webkit-scrollbar{width:3px}
+#sidebar::-webkit-scrollbar-thumb{background:var(--border2)}
+.nav-header{padding:14px 16px 10px;border-bottom:1px solid var(--border)}
+.nav-logo{font-family:'Fira Code',monospace;font-size:9px;color:var(--gray);letter-spacing:2px;text-transform:uppercase;margin-bottom:2px}
+.nav-title{font-size:16px;font-weight:800;color:var(--amber)}
+.nav-sub{font-size:10px;color:var(--gray);margin-top:1px}
+.nav-progress{padding:8px 14px;border-bottom:1px solid var(--border)}
+.nav-p-label{font-family:'Fira Code',monospace;font-size:9px;color:var(--gray);margin-bottom:3px}
+.nav-p-bar{background:var(--border2);border-radius:2px;height:3px}
+.nav-p-fill{background:var(--amber);height:3px;border-radius:2px;width:0%;transition:width .4s}
+.nav-phase{padding:8px 14px 2px;font-family:'Fira Code',monospace;font-size:9px;letter-spacing:1.5px;text-transform:uppercase;color:var(--gray);border-top:1px solid var(--border);margin-top:3px;display:flex;align-items:center;gap:6px}
+.nav-phase .dot{width:6px;height:6px;border-radius:50%;flex-shrink:0}
+.ph0 .dot{background:#4ec994}.ph1 .dot{background:#61afef}.ph2 .dot{background:#e8a04a}.ph3 .dot{background:#c678dd}.ph4 .dot{background:#e06c75}
+nav a{display:flex;align-items:center;gap:7px;padding:5px 12px 5px 14px;color:var(--gray2);text-decoration:none;font-size:12px;transition:all .12s;border-left:2px solid transparent;margin:1px 0}
+nav a:hover{background:var(--bg3);color:var(--text2)}
+nav a.active{background:rgba(232,160,74,.08);color:var(--amber);border-left-color:var(--amber)}
+nav a.done::after{content:"✓";font-size:9px;margin-left:auto;color:var(--green)}
+nav a.done{color:var(--green2)}
+nav a .num{font-family:'Fira Code',monospace;font-size:9px;color:var(--gray);min-width:18px}
+.dtag{font-size:8px;background:rgba(97,175,239,.15);color:var(--blue);padding:1px 4px;border-radius:3px;flex-shrink:0}
+.boss-link{display:flex;align-items:center;gap:6px;padding:4px 12px 4px 14px;font-size:11px;font-family:'Fira Code',monospace;color:var(--red);text-decoration:none;border-left:2px solid transparent;transition:all .12s;margin:2px 0}
+.boss-link:hover{background:rgba(224,108,117,.06);border-left-color:var(--red)}
+.boss-link.done{color:var(--amber)}
+.boss-link.done::after{content:"⭐";font-size:9px;margin-left:auto}
+.nav-special{display:flex;align-items:center;gap:7px;padding:5px 12px 5px 14px;color:var(--purple);font-size:12px;border-left:2px solid transparent;transition:all .12s;cursor:pointer;background:none;border-top:none;border-right:none;border-bottom:none;width:100%;margin:1px 0;font-family:'Syne',sans-serif}
+.nav-special:hover{background:rgba(198,120,221,.06);border-left-color:var(--purple)}
+.nav-extras-header{padding:8px 14px 2px;font-family:'Fira Code',monospace;font-size:9px;letter-spacing:1.5px;text-transform:uppercase;color:var(--amber2);border-top:1px solid var(--border);margin-top:3px}
+main{margin-left:var(--sidebar-w);padding-top:calc(var(--topbar-h)+36px);padding-bottom:100px;padding-right:36px;padding-left:44px;max-width:calc(var(--sidebar-w)+840px)}
+.panel{display:none}.panel.active{display:block}#panel-main{display:block}
+.dashboard{background:var(--bg2);border:1px solid var(--border2);border-radius:14px;padding:24px;margin-bottom:44px}
+.dash-title{font-size:26px;font-weight:800;color:var(--text3);margin-bottom:2px}
+.dash-sub{color:var(--gray2);font-size:13px;margin-bottom:16px}
+.dash-stats{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin-bottom:14px}
+.ds{background:var(--bg3);border:1px solid var(--border2);border-radius:9px;padding:11px 14px}
+.ds-num{font-size:20px;font-weight:800;color:var(--amber);font-family:'Fira Code',monospace}
+.ds-label{font-size:10px;color:var(--gray2);margin-top:1px}
+.dash-discipline{background:rgba(97,175,239,.05);border:1px solid rgba(97,175,239,.14);border-radius:8px;padding:9px 13px;font-size:12px;color:var(--gray2)}
+.phase-divider{display:flex;align-items:center;gap:12px;margin:48px 0 24px;padding:14px 20px;border-radius:11px;border:1px solid}
+.pd0{background:rgba(78,201,148,.05);border-color:rgba(78,201,148,.18)}
+.pd1{background:rgba(97,175,239,.05);border-color:rgba(97,175,239,.18)}
+.pd2{background:rgba(232,160,74,.05);border-color:rgba(232,160,74,.18)}
+.pd3{background:rgba(198,120,221,.05);border-color:rgba(198,120,221,.18)}
+.pd4{background:rgba(224,108,117,.05);border-color:rgba(224,108,117,.18)}
+.ph-icon{font-size:24px}
+.ph-label{font-family:'Fira Code',monospace;font-size:9px;letter-spacing:2px;text-transform:uppercase;opacity:.7;margin-bottom:1px}
+.pd0 .ph-label{color:#4ec994}.pd1 .ph-label{color:#61afef}.pd2 .ph-label{color:#e8a04a}.pd3 .ph-label{color:#c678dd}.pd4 .ph-label{color:#e06c75}
+.ph-name{font-size:16px;font-weight:800;color:var(--text2)}
+.ph-desc{font-size:12px;color:var(--gray2);margin-top:1px}
+.ph-badge{margin-left:auto;font-size:9px;padding:2px 9px;border-radius:9px;white-space:nowrap;font-family:'Fira Code',monospace;flex-shrink:0}
+.badge-disc{background:rgba(97,175,239,.1);color:var(--blue);border:1px solid rgba(97,175,239,.2)}
+.badge-extra{background:rgba(198,120,221,.1);color:var(--purple);border:1px solid rgba(198,120,221,.2)}
+.section{margin-bottom:52px;padding-top:6px;scroll-margin-top:calc(var(--topbar-h)+20px)}
+.section-tag{font-family:'Fira Code',monospace;font-size:10px;color:var(--green);letter-spacing:2px;text-transform:uppercase;margin-bottom:6px;display:flex;align-items:center;gap:8px}
+.disc-pill{font-size:9px;background:rgba(97,175,239,.12);color:var(--blue);border:1px solid rgba(97,175,239,.2);padding:1px 7px;border-radius:10px;letter-spacing:.5px}
+.extra-pill{font-size:9px;background:rgba(198,120,221,.12);color:var(--purple);border:1px solid rgba(198,120,221,.2);padding:1px 7px;border-radius:10px;letter-spacing:.5px}
+h2{font-size:22px;font-weight:700;color:var(--text2);margin-bottom:8px}
+h3{font-size:14.5px;font-weight:600;color:var(--amber2);margin:18px 0 6px}
+p{color:var(--text);line-height:1.8;margin-bottom:10px}
+strong{color:var(--text2)}
+ul,ol{padding-left:18px;margin-bottom:10px}
+li{margin-bottom:2px;font-size:13.5px;color:var(--text)}
+hr{border:none;border-top:1px solid var(--border);margin:28px 0}
+code{font-family:'Fira Code',monospace;background:var(--bg4);color:var(--amber2);padding:1px 5px;border-radius:3px;font-size:.84em}
+.code-wrap{background:var(--bg3);border:1px solid var(--border2);border-radius:9px;overflow:hidden;margin:14px 0;font-family:'Fira Code',monospace}
+.code-header{display:flex;align-items:center;justify-content:space-between;padding:7px 13px;background:var(--bg4);border-bottom:1px solid var(--border)}
+.code-lang{font-size:9px;color:var(--amber);letter-spacing:1px}
+.code-fname{font-size:9px;color:var(--gray)}
+.copy-btn{background:none;border:1px solid var(--border2);color:var(--gray2);padding:2px 9px;border-radius:3px;font-family:'Fira Code',monospace;font-size:9px;cursor:pointer;transition:all .15s}
+.copy-btn:hover{border-color:var(--amber);color:var(--amber)}
+.copy-btn.copied{border-color:var(--green);color:var(--green)}
+pre{padding:14px 16px;overflow-x:auto;font-size:12.5px;line-height:1.6}
+pre::-webkit-scrollbar{height:3px}
+pre::-webkit-scrollbar-thumb{background:var(--border2)}
+.kw{color:var(--purple)}.fn{color:var(--blue)}.str{color:var(--green)}.num{color:var(--amber)}.cmt{color:var(--gray);font-style:italic}.pp{color:var(--red)}.tp{color:var(--amber2)}
+table{width:100%;border-collapse:collapse;margin:10px 0;font-size:12.5px}
+th{background:var(--bg4);color:var(--amber);font-family:'Fira Code',monospace;font-size:9px;letter-spacing:1px;text-transform:uppercase;padding:7px 11px;text-align:left;border-bottom:1px solid var(--border2)}
+td{padding:6px 11px;border-bottom:1px solid var(--border);color:var(--text)}
+td:first-child{font-family:'Fira Code',monospace;color:var(--green2)}
+tr:hover td{background:var(--bg3)}
+.truth-table td{text-align:center;font-family:'Fira Code',monospace}
+.truth-table td.t{color:var(--green);font-weight:600}
+.truth-table td.f{color:var(--red);font-weight:600}
+.note,.warn,.tip{border-radius:7px;padding:10px 14px;margin:10px 0;font-size:13px;border-left:3px solid;line-height:1.6}
+.note{background:rgba(97,175,239,.07);border-color:var(--blue);color:#9bbfe0}
+.warn{background:rgba(224,108,117,.07);border-color:var(--red);color:#e09a9e}
+.tip{background:rgba(78,201,148,.07);border-color:var(--green);color:#7dcaa8}
+.note strong,.warn strong,.tip strong{color:inherit;font-weight:700}
+.card-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:8px;margin:12px 0}
+.card{background:var(--bg3);border:1px solid var(--border2);border-radius:9px;padding:12px}
+.card-icon{font-size:18px;margin-bottom:4px}
+.card-title{font-size:12.5px;font-weight:600;color:var(--text2);margin-bottom:2px}
+.card-desc{font-size:11.5px;color:var(--gray2);line-height:1.5}
+/* NOTES */
+.section-notes{margin-top:14px}
+.notes-label{font-family:'Fira Code',monospace;font-size:9px;color:var(--gray);letter-spacing:1px;text-transform:uppercase;margin-bottom:4px;display:flex;align-items:center;gap:6px}
+.notes-saved-ind{font-size:8px;color:var(--green);opacity:0;transition:opacity .4s}
+.notes-area{width:100%;background:rgba(78,201,148,.03);border:1px solid rgba(78,201,148,.14);border-radius:7px;padding:9px 12px;font-family:'Syne',sans-serif;font-size:12.5px;color:var(--text2);min-height:64px;resize:vertical;outline:none;transition:border-color .2s;line-height:1.6}
+.notes-area:focus{border-color:rgba(78,201,148,.28)}
+.notes-area::placeholder{color:var(--gray)}
+/* EXERCISE */
+.exercise{background:var(--bg2);border:1px solid var(--border2);border-radius:12px;margin-top:24px;overflow:hidden}
+.ex-header{display:flex;align-items:center;justify-content:space-between;padding:10px 16px;background:var(--bg3);border-bottom:1px solid var(--border)}
+.ex-title-wrap{display:flex;align-items:center;gap:8px}
+.ex-icon{font-size:17px}
+.ex-title{font-weight:700;color:var(--text2);font-size:13.5px}
+.ex-xp{font-family:'Fira Code',monospace;font-size:10px;color:var(--amber);background:rgba(232,160,74,.1);padding:2px 9px;border-radius:10px;border:1px solid rgba(232,160,74,.18)}
+.ex-body{padding:16px}
+.ex-desc{font-size:13px;color:var(--text);line-height:1.7;margin-bottom:12px}
+.ex-desc strong{color:var(--amber2)}
+.stdin-wrap{margin-bottom:8px}
+.stdin-label{font-family:'Fira Code',monospace;font-size:9px;color:var(--gray2);letter-spacing:1px;text-transform:uppercase;margin-bottom:3px;display:flex;align-items:center;gap:5px}
+.stdin-label span{background:rgba(97,175,239,.1);color:var(--blue);border:1px solid rgba(97,175,239,.18);padding:1px 5px;border-radius:3px;font-size:8px}
+.stdin-input{width:100%;background:var(--bg4);border:1px solid var(--border2);border-radius:5px;font-family:'Fira Code',monospace;font-size:12px;color:var(--blue);padding:7px 11px;outline:none;transition:border-color .2s;resize:none}
+.stdin-input:focus{border-color:rgba(97,175,239,.3)}
+.stdin-input::placeholder{color:var(--gray)}
+.ex-code-area{background:var(--bg4);border:1px solid var(--border2);border-radius:7px;font-family:'Fira Code',monospace;font-size:12.5px;color:var(--text2);width:100%;padding:11px;min-height:140px;resize:vertical;outline:none;line-height:1.6;transition:border-color .2s;tab-size:4}
+.ex-code-area:focus{border-color:rgba(232,160,74,.28)}
+.ex-code-area::placeholder{color:var(--gray)}
+.ex-actions{display:flex;align-items:center;gap:7px;margin-top:9px;flex-wrap:wrap}
+.btn-run{background:var(--green);color:var(--bg);border:none;padding:7px 18px;border-radius:7px;font-family:'Syne',sans-serif;font-size:12.5px;font-weight:700;cursor:pointer;transition:all .15s}
+.btn-run:hover:not(:disabled){background:var(--green2);transform:translateY(-1px)}
+.btn-run:disabled{opacity:.5;cursor:not-allowed;transform:none}
+.btn-sm{background:none;border:1px solid var(--border2);color:var(--gray2);padding:7px 12px;border-radius:7px;font-size:11.5px;cursor:pointer;transition:all .15s;font-family:'Syne',sans-serif;white-space:nowrap}
+.btn-sm:hover{border-color:var(--blue);color:var(--blue)}
+.btn-sm.purple:hover{border-color:var(--purple);color:var(--purple)}
+.btn-sm.orange:hover{border-color:var(--amber);color:var(--amber)}
+.ex-attempts{font-family:'Fira Code',monospace;font-size:9px;color:var(--gray);margin-left:auto}
+.ex-attempts.w1{color:var(--amber)}.ex-attempts.w2{color:var(--red)}
+.ex-hint{background:rgba(97,175,239,.06);border:1px solid rgba(97,175,239,.18);border-radius:7px;padding:10px 13px;margin-top:9px;font-size:12.5px;color:#9bbfe0;display:none;line-height:1.6}
+.ex-ai-analysis{background:rgba(198,120,221,.05);border:1px solid rgba(198,120,221,.18);border-radius:7px;padding:11px 13px;margin-top:9px;font-size:12.5px;color:#d4b0e8;display:none;line-height:1.6}
+.ex-ai-analysis .ah{font-family:'Fira Code',monospace;font-size:9px;color:var(--purple);letter-spacing:1px;text-transform:uppercase;margin-bottom:6px}
+.ex-solution-box{background:rgba(97,175,239,.04);border:1px solid rgba(97,175,239,.18);border-radius:7px;overflow:hidden;margin-top:9px;display:none}
+.sol-header{font-family:'Fira Code',monospace;font-size:9px;color:var(--blue);letter-spacing:1px;text-transform:uppercase;padding:7px 12px;background:rgba(97,175,239,.06);border-bottom:1px solid rgba(97,175,239,.12)}
+.ex-solution-box pre{font-size:11.5px;padding:11px 13px;color:var(--text2);white-space:pre-wrap}
+.ex-output{margin-top:10px;border-radius:7px;overflow:hidden;display:none}
+.ex-out-header{display:flex;align-items:center;justify-content:space-between;padding:7px 11px;font-family:'Fira Code',monospace;font-size:9px;letter-spacing:1px}
+.ex-out-body{padding:11px 13px;font-family:'Fira Code',monospace;font-size:12px;line-height:1.6;white-space:pre-wrap}
+.ex-output.pass{border:1px solid rgba(78,201,148,.28)}
+.ex-output.pass .ex-out-header{background:rgba(78,201,148,.08);color:var(--green)}
+.ex-output.fail{border:1px solid rgba(224,108,117,.28)}
+.ex-output.fail .ex-out-header{background:rgba(224,108,117,.08);color:var(--red)}
+.ex-output.cerr{border:1px solid rgba(232,160,74,.28)}
+.ex-output.cerr .ex-out-header{background:rgba(232,160,74,.08);color:var(--amber)}
+.ai-fb{margin-top:9px;padding-top:9px;border-top:1px solid rgba(255,255,255,.05);font-size:12px;color:var(--gray2);font-family:'Syne',sans-serif;line-height:1.6}
+.ai-fb .afl{font-family:'Fira Code',monospace;font-size:8px;color:var(--purple);letter-spacing:1px;text-transform:uppercase;margin-bottom:4px}
+.ex-done-badge{display:none;align-items:center;gap:7px;background:rgba(78,201,148,.08);border:1px solid rgba(78,201,148,.18);border-radius:7px;padding:9px 13px;margin-top:9px;font-size:12.5px;color:var(--green2);font-weight:600}
+.ex-loading{display:none;align-items:center;gap:9px;padding:9px 0;font-size:12.5px;color:var(--gray2)}
+.spinner{width:14px;height:14px;border:2px solid var(--border2);border-top-color:var(--amber);border-radius:50%;animation:spin .8s linear infinite;flex-shrink:0}
+@keyframes spin{to{transform:rotate(360deg)}}
+.quiz-options{display:grid;gap:6px;margin-top:4px}
+.quiz-opt{background:var(--bg3);border:1px solid var(--border2);border-radius:7px;padding:9px 13px;cursor:pointer;transition:all .15s;font-size:13px;color:var(--text2);text-align:left;width:100%;font-family:'Syne',sans-serif}
+.quiz-opt:hover:not(:disabled){background:var(--bg4);border-color:rgba(232,160,74,.28)}
+.quiz-opt.correct{background:rgba(78,201,148,.08);border-color:var(--green);color:var(--green2)}
+.quiz-opt.wrong{background:rgba(224,108,117,.08);border-color:var(--red);color:var(--red2)}
+.quiz-opt:disabled{cursor:default}
+.quiz-feedback{margin-top:8px;font-size:12.5px;padding:8px 12px;border-radius:7px;display:none}
+.quiz-feedback.pass{background:rgba(78,201,148,.07);color:var(--green2);border:1px solid rgba(78,201,148,.18)}
+.quiz-feedback.fail{background:rgba(224,108,117,.07);color:var(--red2);border:1px solid rgba(224,108,117,.18)}
+/* BOSS */
+.boss-challenge{background:linear-gradient(135deg,rgba(224,108,117,.04),rgba(232,160,74,.04));border:1px solid rgba(224,108,117,.22);border-radius:14px;margin:40px 0;overflow:hidden}
+.boss-header{background:rgba(224,108,117,.07);border-bottom:1px solid rgba(224,108,117,.18);padding:14px 20px;display:flex;align-items:center;gap:11px}
+.boss-skull{font-size:24px}
+.boss-h-tag{font-family:'Fira Code',monospace;font-size:9px;color:var(--red);letter-spacing:2px;text-transform:uppercase;margin-bottom:1px}
+.boss-h-name{font-size:17px;font-weight:800;color:var(--text3)}
+.boss-h-xp{margin-left:auto;font-family:'Fira Code',monospace;font-size:11px;color:var(--amber2);background:rgba(232,160,74,.1);padding:3px 11px;border-radius:10px;border:1px solid rgba(232,160,74,.18)}
+.boss-body{padding:20px}
+.boss-desc{font-size:13.5px;line-height:1.75;color:var(--text);margin-bottom:12px}
+.boss-objectives{background:var(--bg3);border:1px solid var(--border2);border-radius:7px;padding:11px 15px;margin-bottom:12px}
+.boss-obj-title{font-size:10px;font-weight:700;color:var(--amber);font-family:'Fira Code',monospace;margin-bottom:6px;letter-spacing:1px;text-transform:uppercase}
+.boss-obj-list{list-style:none;padding:0}
+.boss-obj-list li{padding:2px 0 2px 14px;font-size:12.5px;color:var(--text);position:relative}
+.boss-obj-list li::before{content:"▸";color:var(--red);position:absolute;left:0}
+/* MODALS */
+.modal-overlay{position:fixed;inset:0;z-index:500;background:rgba(0,0,0,.72);backdrop-filter:blur(8px);display:none;align-items:center;justify-content:center;padding:20px}
+.modal-overlay.show{display:flex}
+.modal-box{background:var(--bg2);border-radius:16px;padding:28px;max-width:500px;width:100%;animation:popIn .3s ease;max-height:90vh;overflow-y:auto}
+.modal-box::-webkit-scrollbar{width:3px}
+.modal-box::-webkit-scrollbar-thumb{background:var(--border2)}
+.modal-title{font-size:17px;font-weight:800;color:var(--text3);margin-bottom:4px}
+.modal-sub{font-size:12.5px;color:var(--gray2);margin-bottom:18px;line-height:1.6}
+.modal-actions{display:flex;gap:8px;margin-top:18px;flex-wrap:wrap}
+.btn-primary{background:var(--green);color:var(--bg);border:none;padding:8px 20px;border-radius:7px;font-family:'Syne',sans-serif;font-size:13px;font-weight:700;cursor:pointer;transition:all .15s}
+.btn-primary:hover{background:var(--green2)}
+.btn-secondary{background:none;border:1px solid var(--border2);color:var(--gray2);padding:8px 16px;border-radius:7px;font-size:13px;cursor:pointer;font-family:'Syne',sans-serif}
+.btn-secondary:hover{border-color:var(--gray2);color:var(--text2)}
+.btn-danger{background:rgba(224,108,117,.1);border:1px solid rgba(224,108,117,.2);color:var(--red);padding:8px 16px;border-radius:7px;font-size:13px;cursor:pointer;font-family:'Syne',sans-serif}
+/* ONBOARDING */
+#onboarding{position:fixed;inset:0;z-index:1000;background:rgba(0,0,0,.85);backdrop-filter:blur(12px);display:flex;align-items:center;justify-content:center;padding:20px}
+.ob-box{background:var(--bg2);border:1px solid rgba(78,201,148,.18);border-radius:18px;padding:38px;max-width:440px;width:100%;animation:popIn .5s ease}
+.ob-logo{font-family:'Fira Code',monospace;font-size:10px;color:var(--green);letter-spacing:3px;text-transform:uppercase;margin-bottom:8px}
+.ob-title{font-size:24px;font-weight:800;color:var(--text3);margin-bottom:4px}
+.ob-sub{font-size:13px;color:var(--gray2);margin-bottom:20px;line-height:1.6}
+.ob-label{font-size:10px;color:var(--gray2);margin-bottom:4px;font-weight:600;font-family:'Fira Code',monospace;letter-spacing:1px;text-transform:uppercase}
+.ob-input{width:100%;background:var(--bg4);border:1px solid var(--border2);border-radius:7px;padding:10px 13px;color:var(--text2);font-family:'Syne',sans-serif;font-size:14px;outline:none;transition:border-color .2s;margin-bottom:16px}
+.ob-input:focus{border-color:rgba(78,201,148,.35)}
+.ob-feats{display:grid;grid-template-columns:1fr 1fr;gap:6px;margin-bottom:18px}
+.ob-feat{background:var(--bg3);border-radius:7px;padding:8px 10px;font-size:11.5px;color:var(--gray2);display:flex;align-items:center;gap:6px}
+.btn-start{width:100%;background:var(--green);color:var(--bg);border:none;padding:11px;border-radius:9px;font-family:'Syne',sans-serif;font-size:14px;font-weight:800;cursor:pointer;transition:all .15s}
+.btn-start:hover{background:var(--green2);transform:translateY(-1px)}
+/* LEVELUP */
+#levelup-modal .modal-box{border:1px solid rgba(232,160,74,.28);text-align:center}
+.lu-stars{font-size:34px;margin-bottom:12px}
+.lu-tag{font-family:'Fira Code',monospace;font-size:9px;color:var(--gray2);letter-spacing:2px;text-transform:uppercase;margin-bottom:5px}
+.lu-name{font-size:24px;font-weight:800;color:var(--amber);margin-bottom:4px}
+.lu-desc{font-size:13px;color:var(--gray2);margin-bottom:18px}
+/* TOAST */
+#toast-container{position:fixed;bottom:20px;right:20px;z-index:999;display:flex;flex-direction:column;gap:7px;pointer-events:none}
+.toast{background:var(--bg2);border:1px solid rgba(232,160,74,.28);border-radius:11px;padding:11px 14px;display:flex;align-items:center;gap:9px;box-shadow:0 6px 28px rgba(0,0,0,.4);animation:toastIn .4s ease;min-width:240px;max-width:300px;pointer-events:all}
+.toast-icon{font-size:19px;flex-shrink:0}
+.toast-label{font-size:8px;font-family:'Fira Code',monospace;color:var(--amber);letter-spacing:1px;text-transform:uppercase;margin-bottom:1px}
+.toast-name{font-size:12.5px;font-weight:700;color:var(--text3)}
+.toast-desc{font-size:10.5px;color:var(--gray2)}
+@keyframes toastIn{from{transform:translateX(110%);opacity:0}to{transform:translateX(0);opacity:1}}
+@keyframes toastOut{to{opacity:0;transform:translateX(110%)}}
+@keyframes popIn{from{transform:scale(.85);opacity:0}to{transform:scale(1);opacity:1}}
+/* PLAYGROUND */
+.pg-wrap{background:var(--bg2);border:1px solid var(--border2);border-radius:12px;overflow:hidden}
+.pg-header{background:var(--bg3);border-bottom:1px solid var(--border);padding:12px 16px;display:flex;align-items:center;justify-content:space-between}
+.pg-title{font-size:14px;font-weight:700;color:var(--text2)}
+.pg-code{width:100%;background:var(--bg4);border:none;font-family:'Fira Code',monospace;font-size:13px;color:var(--text2);padding:16px;min-height:220px;resize:vertical;outline:none;line-height:1.65;tab-size:4}
+.pg-footer{padding:12px 16px;background:var(--bg3);border-top:1px solid var(--border);display:flex;align-items:center;gap:8px}
+.pg-hist-label{font-family:'Fira Code',monospace;font-size:9px;color:var(--gray);letter-spacing:1px;text-transform:uppercase;margin-bottom:8px;margin-top:16px}
+.pg-hist-item{background:var(--bg3);border:1px solid var(--border2);border-radius:7px;padding:8px 12px;margin-bottom:6px;cursor:pointer;transition:all .15s;font-family:'Fira Code',monospace;font-size:11px;color:var(--gray2);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.pg-hist-item:hover{border-color:var(--amber);color:var(--amber2)}
+.pg-hist-empty{font-size:12px;color:var(--gray);font-style:italic;padding:4px 0}
+/* STATS */
+.stats-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-bottom:20px}
+.stat-card{background:var(--bg2);border:1px solid var(--border2);border-radius:10px;padding:14px}
+.stat-card-num{font-size:24px;font-weight:800;color:var(--amber);font-family:'Fira Code',monospace}
+.stat-card-label{font-size:11px;color:var(--gray2);margin-top:2px}
+.stat-bar-wrap{margin-bottom:10px}
+.stat-bar-label{display:flex;justify-content:space-between;font-size:11px;color:var(--gray2);margin-bottom:3px}
+.stat-bar{background:var(--bg3);border-radius:3px;height:6px;overflow:hidden}
+.stat-bar-fill{height:100%;border-radius:3px;transition:width .6s ease}
+.weak-item{background:var(--bg2);border:1px solid rgba(224,108,117,.2);border-radius:8px;padding:9px 12px;margin-bottom:6px;display:flex;align-items:center;justify-content:space-between}
+.weak-name{font-size:12.5px;color:var(--text2)}
+.weak-count{font-family:'Fira Code',monospace;font-size:11px;color:var(--red)}
+/* DAILY */
+.daily-card{background:var(--bg2);border:1px solid rgba(232,160,74,.22);border-radius:14px;overflow:hidden;margin-bottom:20px}
+.daily-header{background:rgba(232,160,74,.07);border-bottom:1px solid rgba(232,160,74,.18);padding:14px 18px;display:flex;align-items:center;gap:10px}
+.daily-icon{font-size:22px}
+.daily-tag{font-family:'Fira Code',monospace;font-size:9px;color:var(--amber);letter-spacing:2px;text-transform:uppercase;margin-bottom:1px}
+.daily-name{font-size:16px;font-weight:800;color:var(--text3)}
+.daily-xp{margin-left:auto;font-family:'Fira Code',monospace;font-size:10px;color:var(--amber2);background:rgba(232,160,74,.1);padding:2px 9px;border-radius:9px;border:1px solid rgba(232,160,74,.18)}
+.daily-body{padding:18px}
+/* REVIEW */
+.review-card{background:var(--bg2);border:1px solid rgba(198,120,221,.2);border-radius:12px;overflow:hidden;margin-bottom:14px}
+.review-header{background:rgba(198,120,221,.07);border-bottom:1px solid rgba(198,120,221,.18);padding:10px 15px;display:flex;align-items:center;justify-content:space-between}
+.review-tag{font-family:'Fira Code',monospace;font-size:9px;color:var(--purple);letter-spacing:1.5px;text-transform:uppercase}
+.review-body{padding:14px}
+.review-q{font-size:13.5px;color:var(--text2);margin-bottom:10px;font-weight:600}
+.review-opts{display:grid;gap:5px}
+.review-opt{background:var(--bg3);border:1px solid var(--border2);border-radius:6px;padding:8px 12px;cursor:pointer;font-size:12.5px;color:var(--text2);text-align:left;width:100%;font-family:'Syne',sans-serif;transition:all .12s}
+.review-opt:hover:not(:disabled){border-color:rgba(198,120,221,.3);color:var(--purple)}
+.review-opt.correct{background:rgba(78,201,148,.08);border-color:var(--green);color:var(--green2)}
+.review-opt.wrong{background:rgba(224,108,117,.08);border-color:var(--red);color:var(--red2)}
+/* PROJECTS */
+.project-card{background:var(--bg2);border:1px solid var(--border2);border-radius:12px;overflow:hidden;margin-bottom:16px}
+.project-header{padding:14px 18px;border-bottom:1px solid var(--border);display:flex;align-items:center;gap:10px}
+.project-icon{font-size:22px}
+.project-title{font-size:15px;font-weight:700;color:var(--text2)}
+.project-diff{font-family:'Fira Code',monospace;font-size:9px;padding:2px 8px;border-radius:8px;margin-left:auto}
+.diff-easy{background:rgba(78,201,148,.1);color:var(--green);border:1px solid rgba(78,201,148,.2)}
+.diff-med{background:rgba(232,160,74,.1);color:var(--amber);border:1px solid rgba(232,160,74,.2)}
+.diff-hard{background:rgba(224,108,117,.1);color:var(--red);border:1px solid rgba(224,108,117,.2)}
+.project-body{padding:16px}
+.project-desc{font-size:13px;color:var(--text);line-height:1.7;margin-bottom:12px}
+.project-concepts{display:flex;flex-wrap:wrap;gap:5px;margin-bottom:12px}
+.concept-tag{font-size:10px;background:var(--bg3);border:1px solid var(--border2);color:var(--gray2);padding:2px 8px;border-radius:10px;font-family:'Fira Code',monospace}
+.project-step{display:flex;gap:10px;margin-bottom:10px}
+.step-num{background:var(--amber);color:var(--bg);font-size:10px;font-weight:800;width:20px;height:20px;border-radius:50%;display:flex;align-items:center;justify-content:center;flex-shrink:0;margin-top:2px}
+.step-body{font-size:12.5px;color:var(--text);line-height:1.65}
+/* ACH GRID */
+.ach-item{background:var(--bg3);border:1px solid var(--border2);border-radius:8px;padding:10px 12px;display:flex;align-items:center;gap:8px}
+.ach-item.unlocked{border-color:rgba(232,160,74,.3);background:rgba(232,160,74,.05)}
+.ach-icon{font-size:18px;flex-shrink:0}
+.ach-name{font-size:12px;font-weight:700;color:var(--text2)}
+.ach-desc{font-size:10.5px;color:var(--gray2)}
+.ach-item.locked .ach-icon{filter:grayscale(1);opacity:.4}
+.ach-item.locked .ach-name{color:var(--gray)}
+@media(max-width:860px){
+  #topbar{padding-left:14px}#sidebar{transform:translateX(-100%);transition:transform .3s;z-index:300}#sidebar.open{transform:translateX(0)}main{margin-left:0;padding:calc(var(--topbar-h)+20px) 16px 80px}#menu-btn{display:flex}.dash-stats{grid-template-columns:1fr 1fr}.stats-grid{grid-template-columns:1fr 1fr}
+}
+#menu-btn{display:none;position:fixed;bottom:16px;right:16px;z-index:250;background:var(--amber);color:var(--bg);border:none;width:42px;height:42px;border-radius:50%;font-size:17px;cursor:pointer;align-items:center;justify-content:center;font-weight:700;box-shadow:0 4px 18px rgba(232,160,74,.4)}
+</style>
+</head>
+<body>
+
+<!-- ONBOARDING -->
+<div id="onboarding">
+  <div class="ob-box">
+    <div class="ob-logo">// c: do zero ao mestre</div>
+    <div class="ob-title">Bem-vindo! 🚀</div>
+    <div class="ob-sub">Aprenda C com GCC real, IA que corrige seus erros, projetos guiados, desafios diários e sistema de progressão completo.</div>
+    <div class="ob-label">Seu nome</div>
+    <input class="ob-input" id="ob-name" type="text" placeholder="Ex: Lucas" maxlength="30">
+    <div class="ob-feats">
+      <div class="ob-feat"><span>⚙️</span> GCC real (grátis)</div>
+      <div class="ob-feat"><span>🤖</span> IA explica erros</div>
+      <div class="ob-feat"><span>💾</span> Save automático</div>
+      <div class="ob-feat"><span>🎯</span> Desafios diários</div>
+    </div>
+    <button class="btn-start" onclick="startJourney()">Iniciar jornada →</button>
+  </div>
+</div>
+
+<!-- SETTINGS -->
+<div id="settings-modal" class="modal-overlay">
+  <div class="modal-box" style="border:1px solid rgba(97,175,239,.2)">
+    <div class="modal-title">⚙️ Configurações</div>
+    <div class="modal-sub">Compilador: <strong style="color:var(--green)">Piston API (GCC gratuito, sem configuração)</strong></div>
+    <div class="note" style="margin-top:0">✅ Nenhuma API key necessária. GCC funciona direto via Piston API pública.</div>
+    <div style="margin-top:16px;padding-top:14px;border-top:1px solid var(--border)">
+      <div style="font-size:12px;color:var(--gray2);margin-bottom:8px">Zona de perigo</div>
+      <button class="btn-danger" onclick="confirmReset()">🗑️ Resetar todo o progresso</button>
+    </div>
+    <div class="modal-actions"><button class="btn-secondary" onclick="closeModal('settings-modal')">Fechar</button></div>
+  </div>
+</div>
+
+<!-- LEVEL UP -->
+<div id="levelup-modal" class="modal-overlay">
+  <div class="modal-box">
+    <div class="lu-stars">⭐🎉⭐</div>
+    <div class="lu-tag">Subiu de nível!</div>
+    <div class="lu-name" id="lu-name">Aprendiz</div>
+    <div class="lu-desc" id="lu-desc">Continue assim!</div>
+    <button class="btn-primary" onclick="closeModal('levelup-modal')">Continuar!</button>
+  </div>
+</div>
+
+<div id="toast-container"></div>
+
+<!-- TOPBAR -->
+<div id="topbar">
+  <div class="tb-left">
+    <div class="tb-level"><span class="tb-lv-num" id="tb-lv-num">LV 1</span><span class="tb-lv-name" id="tb-lv-name">Curioso</span></div>
+    <div class="tb-xp-wrap">
+      <div class="tb-xp-label" id="tb-xp-label">0 / 100 XP</div>
+      <div class="tb-xp-bar"><div class="tb-xp-fill" id="tb-xp-fill"></div></div>
+    </div>
+  </div>
+  <div class="tb-right">
+    <div class="tb-streak" id="tb-streak">🔥 0</div>
+    <div class="tb-pct" id="tb-pct">0%</div>
+    <div class="tb-user" id="tb-user">—</div>
+    <button class="tb-btn" onclick="showPanel('daily')" title="Desafio do Dia">🎯</button>
+    <button class="tb-btn" onclick="showPanel('playground')" title="Playground">💻</button>
+    <button class="tb-btn" onclick="showPanel('stats')" title="Estatísticas">📊</button>
+    <button class="tb-btn" onclick="openModal('settings-modal')" title="Configurações">⚙️</button>
+  </div>
+</div>
+
+<!-- SIDEBAR -->
+<nav id="sidebar">
+  <div class="nav-header">
+    <div class="nav-logo">// linguagem c</div>
+    <div class="nav-title">Do Zero ao Mestre</div>
+  </div>
+  <div class="nav-progress">
+    <div class="nav-p-label" id="nav-p-label">0% concluído</div>
+    <div class="nav-p-bar"><div class="nav-p-fill" id="nav-p-fill"></div></div>
+  </div>
+  <div class="nav-phase ph0"><span class="dot"></span>Fase 0 — Início</div>
+  <a href="#" onclick="navTo('pensamento')" id="nav-pensamento"><span class="num">00</span>Pensamento Computacional<span class="dtag">disciplina</span></a>
+  <a href="#" onclick="navTo('setup')" id="nav-setup"><span class="num">01</span>Configuração</a>
+  <a href="#" onclick="navTo('hello')" id="nav-hello"><span class="num">02</span>Olá, Mundo!</a>
+  <div class="nav-phase ph1"><span class="dot"></span>Fase 1 — Fundamentos</div>
+  <a href="#" onclick="navTo('tipos')" id="nav-tipos"><span class="num">03</span>Tipos de Dados<span class="dtag">disciplina</span></a>
+  <a href="#" onclick="navTo('operadores')" id="nav-operadores"><span class="num">04</span>Operadores + Tabela Verdade<span class="dtag">disciplina</span></a>
+  <a href="#" onclick="navTo('io')" id="nav-io"><span class="num">05</span>Entrada e Saída<span class="dtag">disciplina</span></a>
+  <a href="#" onclick="navTo('boss1')" class="boss-link" id="nav-boss1">⚔️ Boss: IMC</a>
+  <div class="nav-phase ph2"><span class="dot"></span>Fase 2 — Controle</div>
+  <a href="#" onclick="navTo('condicionais')" id="nav-condicionais"><span class="num">06</span>Decisão (if/else)<span class="dtag">disciplina</span></a>
+  <a href="#" onclick="navTo('loops')" id="nav-loops"><span class="num">07</span>Repetição<span class="dtag">disciplina</span></a>
+  <a href="#" onclick="navTo('switch')" id="nav-switch"><span class="num">08</span>Switch/Case</a>
+  <a href="#" onclick="navTo('boss2')" class="boss-link" id="nav-boss2">⚔️ Boss: Senha</a>
+  <div class="nav-phase ph3"><span class="dot"></span>Fase 3 — Estruturas</div>
+  <a href="#" onclick="navTo('funcoes')" id="nav-funcoes"><span class="num">09</span>Funções</a>
+  <a href="#" onclick="navTo('arrays')" id="nav-arrays"><span class="num">10</span>Vetores e Matrizes<span class="dtag">disciplina</span></a>
+  <a href="#" onclick="navTo('strings')" id="nav-strings"><span class="num">11</span>Strings</a>
+  <a href="#" onclick="navTo('structs')" id="nav-structs"><span class="num">12</span>Structs</a>
+  <a href="#" onclick="navTo('boss3')" class="boss-link" id="nav-boss3">⚔️ Boss: Notas</a>
+  <div class="nav-phase ph4"><span class="dot"></span>Fase 4 — Avançado</div>
+  <a href="#" onclick="navTo('ponteiros')" id="nav-ponteiros"><span class="num">13</span>Ponteiros ⭐</a>
+  <a href="#" onclick="navTo('memoria')" id="nav-memoria"><span class="num">14</span>Memória Dinâmica</a>
+  <a href="#" onclick="navTo('arquivos')" id="nav-arquivos"><span class="num">15</span>Arquivos</a>
+  <a href="#" onclick="navTo('boss4')" class="boss-link" id="nav-boss4">💀 Boss Final</a>
+  <div class="nav-extras-header">Extras</div>
+  <button class="nav-special" onclick="showPanel('projects')">🗂️ Projetos Guiados</button>
+  <button class="nav-special" onclick="showPanel('playground')">💻 Playground</button>
+  <button class="nav-special" onclick="showPanel('review')">🔁 Modo Revisão</button>
+  <button class="nav-special" onclick="showPanel('daily')">🎯 Desafio Diário</button>
+  <button class="nav-special" onclick="showPanel('stats')">📊 Minhas Estatísticas</button>
+</nav>
+
+<main>
+<!-- PANEL MAIN -->
+<div id="panel-main" class="panel active">
+<div class="dashboard">
+  <div class="dash-title" id="dash-greeting">Sua Jornada em C</div>
+  <div class="dash-sub">Cada exercício concluído te aproxima do domínio total.</div>
+  <div class="dash-stats">
+    <div class="ds"><div class="ds-num" id="ds-xp">0</div><div class="ds-label">XP total</div></div>
+    <div class="ds"><div class="ds-num" id="ds-sec">0/16</div><div class="ds-label">Seções</div></div>
+    <div class="ds"><div class="ds-num" id="ds-ex">0/19</div><div class="ds-label">Exercícios</div></div>
+    <div class="ds"><div class="ds-num" id="ds-streak">0🔥</div><div class="ds-label">Streak</div></div>
+  </div>
+  <div class="dash-discipline">
+    <strong style="color:var(--blue)">Sua disciplina cobre:</strong> Pensamento Computacional · Tipos e Operadores · Tabela Verdade · I/O · Decisão · Repetição · Vetores — tudo marcado com <span style="background:rgba(97,175,239,.15);color:var(--blue);border:1px solid rgba(97,175,239,.2);padding:1px 5px;border-radius:3px;font-size:9px">disciplina</span> no menu.
+  </div>
+</div>
+
+<!-- FASE 0 -->
+<div class="phase-divider pd0"><div class="ph-icon">⚡</div><div><div class="ph-label">Fase 0</div><div class="ph-name">Início</div><div class="ph-desc">Raciocínio computacional e primeiros programas</div></div><span class="ph-badge badge-disc">na disciplina</span></div>
+
+<section class="section" id="pensamento">
+  <div class="section-tag">// 00 — pensamento computacional <span class="disc-pill">disciplina</span></div>
+  <h2>Solução de Problemas e Pensamento Computacional</h2>
+  <p>Antes de escrever uma linha de código, você precisa <strong>pensar como computador</strong>. Isso se chama pensamento computacional.</p>
+  <div class="card-grid">
+    <div class="card"><div class="card-icon">🔍</div><div class="card-title">Decomposição</div><div class="card-desc">Quebrar problema grande em partes menores e gerenciáveis.</div></div>
+    <div class="card"><div class="card-icon">🔎</div><div class="card-title">Reconhecimento de Padrões</div><div class="card-desc">Identificar semelhanças para reutilizar soluções.</div></div>
+    <div class="card"><div class="card-icon">🗂️</div><div class="card-title">Abstração</div><div class="card-desc">Focar no essencial, ignorar detalhes irrelevantes.</div></div>
+    <div class="card"><div class="card-icon">📋</div><div class="card-title">Algoritmo</div><div class="card-desc">Sequência finita e ordenada de passos para resolver um problema.</div></div>
+  </div>
+  <h3>Pseudocódigo — Média de 3 notas</h3>
+  <div class="code-wrap"><div class="code-header"><span class="code-lang">PSEUDOCÓDIGO</span></div>
+  <pre>INÍCIO
+  LEIA nota1, nota2, nota3
+  media ← (nota1 + nota2 + nota3) / 3
+  SE media >= 5 ENTÃO
+    ESCREVA "Aprovado"
+  SENÃO
+    ESCREVA "Reprovado"
+  FIM-SE
+FIM</pre></div>
+  <h3>Fluxograma</h3>
+  <div class="code-wrap"><div class="code-header"><span class="code-lang">FLUXOGRAMA</span></div>
+  <pre>       [INÍCIO]
+           │
+   [Leia n1, n2, n3]
+           │
+   [media = (n1+n2+n3)/3]
+           │
+     ◇ media >= 5? ◇
+      ↙ SIM    NÃO ↘
+  [Aprovado]  [Reprovado]
+      │             │
+      └──────┬───────┘
+           [FIM]</pre></div>
+  <div class="tip"><strong>💡 Regra de ouro:</strong> nunca abra o editor sem saber exatamente o que o programa precisa fazer. Pense primeiro, code depois.</div>
+
+  <div class="section-notes">
+    <div class="notes-label">📝 Minhas anotações <span class="notes-saved-ind" id="ns-pensamento">salvo ✓</span></div>
+    <textarea class="notes-area" id="notes-pensamento" placeholder="Com suas palavras: o que é pensamento computacional?"></textarea>
+  </div>
+  <div class="exercise" id="ex-pensamento">
+    <div class="ex-header"><div class="ex-title-wrap"><span class="ex-icon">🧠</span><span class="ex-title">Quiz: Primeiro passo</span></div><span class="ex-xp">+30 XP</span></div>
+    <div class="ex-body">
+      <div class="ex-desc">Antes de programar, qual é o passo mais importante?</div>
+      <div class="quiz-options"><button class="quiz-opt" onclick="answerQuiz('pensamento','A',this)">A) Abrir o editor e começar a digitar</button>
+<button class="quiz-opt" onclick="answerQuiz('pensamento','B',this)">B) Entender o problema e planejar o algoritmo</button>
+<button class="quiz-opt" onclick="answerQuiz('pensamento','C',this)">C) Pesquisar no Google a solução pronta</button>
+<button class="quiz-opt" onclick="answerQuiz('pensamento','D',this)">D) Escolher a linguagem de programação</button></div>
+      <div class="quiz-feedback" id="qf-pensamento"></div>
+    </div>
+  </div></section><hr>
+
+<section class="section" id="setup">
+  <div class="section-tag">// 01 — configuração</div>
+  <h2>Configurando o Ambiente</h2>
+  <p>Para programar em C você precisa de um <strong>compilador</strong>. O mais usado é o <strong>GCC</strong>.</p>
+  <h3>🐧 Linux / WSL</h3>
+  <div class="code-wrap"><div class="code-header"><span class="code-lang">BASH</span><button class="copy-btn" onclick="copyCode(this)">copiar</button></div>
+  <pre>sudo apt update && sudo apt install gcc
+gcc --version</pre></div>
+  <h3>🪟 Windows — recomendado: WSL2</h3>
+  <p>No PowerShell como administrador: <code>wsl --install</code>. Depois instale GCC dentro do WSL com o comando acima.</p>
+  <h3>Compilar e executar</h3>
+  <div class="code-wrap"><div class="code-header"><span class="code-lang">BASH</span><button class="copy-btn" onclick="copyCode(this)">copiar</button></div>
+  <pre><span class="cmt"># Compilar com todos os avisos (sempre faça isso!)</span>
+gcc -Wall -Wextra meu_programa.c -o meu_programa
+./meu_programa</pre></div>
+  <div class="tip"><strong>✅ Regra de ouro:</strong> sempre compile com <code>-Wall -Wextra</code>. Essas flags revelam bugs antes de executar.</div>
+
+  <div class="section-notes">
+    <div class="notes-label">📝 Minhas anotações <span class="notes-saved-ind" id="ns-setup">salvo ✓</span></div>
+    <textarea class="notes-area" id="notes-setup" placeholder="Comandos que preciso lembrar..."></textarea>
+  </div>
+  <div class="exercise" id="ex-setup">
+    <div class="ex-header"><div class="ex-title-wrap"><span class="ex-icon">🧠</span><span class="ex-title">Quiz: Flag de avisos</span></div><span class="ex-xp">+30 XP</span></div>
+    <div class="ex-body">
+      <div class="ex-desc">Qual combinação ativa todos os avisos do GCC?</div>
+      <div class="quiz-options"><button class="quiz-opt" onclick="answerQuiz('setup','A',this)">A) gcc -debug</button>
+<button class="quiz-opt" onclick="answerQuiz('setup','B',this)">B) gcc -Wall -Wextra</button>
+<button class="quiz-opt" onclick="answerQuiz('setup','C',this)">C) gcc --all-warnings</button>
+<button class="quiz-opt" onclick="answerQuiz('setup','D',this)">D) gcc -verbose</button></div>
+      <div class="quiz-feedback" id="qf-setup"></div>
+    </div>
+  </div></section><hr>
+
+<section class="section" id="hello">
+  <div class="section-tag">// 02 — primeiro programa</div>
+  <h2>Olá, Mundo!</h2>
+  <div class="code-wrap"><div class="code-header"><span class="code-lang">C</span><span class="code-fname">ola_mundo.c</span><button class="copy-btn" onclick="copyCode(this)">copiar</button></div>
+  <pre><span class="pp">#include</span> <span class="str">&lt;stdio.h&gt;</span>   <span class="cmt">// importa printf, scanf, etc.</span>
+
+<span class="tp">int</span> <span class="fn">main</span>() {
+    <span class="fn">printf</span>(<span class="str">"Olá, Mundo!\n"</span>);  <span class="cmt">// \n = nova linha</span>
+    <span class="kw">return</span> <span class="num">0</span>;               <span class="cmt">// 0 = sucesso ao SO</span>
+}</pre></div>
+  <table>
+    <tr><th>Elemento</th><th>Significado</th></tr>
+    <tr><td>#include &lt;stdio.h&gt;</td><td>Importa funções de I/O como printf e scanf</td></tr>
+    <tr><td>int main()</td><td>Ponto de entrada — todo programa C começa aqui</td></tr>
+    <tr><td>printf()</td><td>Imprime texto formatado no terminal</td></tr>
+    <tr><td>\n</td><td>Caractere de nova linha (newline)</td></tr>
+    <tr><td>return 0</td><td>Indica ao sistema operacional que terminou com sucesso</td></tr>
+  </table>
+  <div class="warn"><strong>⚠️ Ponto e vírgula!</strong> Em C, todo comando termina com <code>;</code>. Esquecer é o erro mais comum de iniciantes.</div>
+
+  <div class="section-notes">
+    <div class="notes-label">📝 Minhas anotações <span class="notes-saved-ind" id="ns-hello">salvo ✓</span></div>
+    <textarea class="notes-area" id="notes-hello" placeholder="O que cada linha do Hello World faz..."></textarea>
+  </div><div class="exercise" id="ex-hello">
+    <div class="ex-header"><div class="ex-title-wrap"><span class="ex-icon">💻</span><span class="ex-title">Código: Escreva seu Hello World</span></div><span class="ex-xp">+50 XP</span></div>
+    <div class="ex-body">
+      <div class="ex-desc">Escreva um programa C completo que imprima: <strong>Olá, Mundo!</strong></div>
+      <textarea class="ex-code-area" id="code-hello" style="min-height:140px" placeholder="#include ..."></textarea>
+      <div class="ex-actions">
+        <button class="btn-run" onclick="runEx('hello')">▶ Compilar e Executar</button>
+        <button class="btn-sm" onclick="toggleHint('hello')">💡 Dica</button>
+        <button class="btn-sm purple" id="btn-ai-hello" style="display:none" onclick="getAiHelp('hello')">🤖 Analisar erro</button>
+        <button class="btn-sm orange" id="btn-sol-hello" style="display:none" onclick="showSolution('hello')">📖 Solução</button>
+        <span class="ex-attempts" id="att-hello"></span>
+      </div>
+      <div class="ex-hint" id="hint-hello"></div>
+      <div class="ex-ai-analysis" id="aia-hello"><div class="ah">🤖 Análise da IA</div><div id="aia-body-hello"></div></div>
+      <div class="ex-solution-box" id="sol-hello"><div class="sol-header">📖 Solução comentada (−50% XP)</div><pre id="sol-body-hello"></pre></div>
+      <div class="ex-loading" id="load-hello"><div class="spinner"></div><span id="load-txt-hello">Compilando...</span></div>
+      <div class="ex-output" id="out-hello"><div class="ex-out-header"><span id="out-stat-hello"></span></div><div class="ex-out-body" id="out-body-hello"></div></div>
+      <div class="ex-done-badge" id="done-hello">✅ Correto! +50 XP ganhos</div>
+    </div></div>
+</section><hr>
+
+<div class="phase-divider pd1"><div class="ph-icon">🔩</div><div><div class="ph-label">Fase 1</div><div class="ph-name">Fundamentos</div><div class="ph-desc">Tipos, operadores, tabela verdade e I/O</div></div><span class="ph-badge badge-disc">na disciplina</span></div>
+
+<section class="section" id="tipos">
+  <div class="section-tag">// 03 — tipos de dados <span class="disc-pill">disciplina</span></div>
+  <h2>Tipos de Dados e Variáveis</h2>
+  <p>C é <strong>fortemente tipado</strong> — toda variável precisa ter tipo declarado.</p>
+  <table>
+    <tr><th>Tipo</th><th>Tamanho</th><th>Faixa</th><th>printf</th></tr>
+    <tr><td>char</td><td>1 byte</td><td>-128 a 127</td><td>%c</td></tr>
+    <tr><td>int</td><td>4 bytes</td><td>~-2bi a 2bi</td><td>%d</td></tr>
+    <tr><td>float</td><td>4 bytes</td><td>~6 decimais</td><td>%f / %.2f</td></tr>
+    <tr><td>double</td><td>8 bytes</td><td>~15 decimais</td><td>%lf</td></tr>
+    <tr><td>long</td><td>8 bytes</td><td>Inteiro grande</td><td>%ld</td></tr>
+  </table>
+  <div class="code-wrap"><div class="code-header"><span class="code-lang">C</span><button class="copy-btn" onclick="copyCode(this)">copiar</button></div>
+  <pre><span class="tp">int</span>    idade  = <span class="num">20</span>;
+<span class="tp">float</span>  altura = <span class="num">1.75f</span>;
+<span class="tp">double</span> pi     = <span class="num">3.14159265</span>;
+<span class="tp">char</span>   letra  = <span class="str">'A'</span>;
+<span class="kw">const</span> <span class="tp">double</span> G = <span class="num">9.8</span>;  <span class="cmt">// constante: não muda</span>
+<span class="fn">printf</span>(<span class="str">"Idade: %d, Altura: %.2f\n"</span>, idade, altura);</pre></div>
+
+  <div class="section-notes">
+    <div class="notes-label">📝 Minhas anotações <span class="notes-saved-ind" id="ns-tipos">salvo ✓</span></div>
+    <textarea class="notes-area" id="notes-tipos" placeholder="Diferenças entre int, float e double..."></textarea>
+  </div>
+  <div class="exercise" id="ex-tipos">
+    <div class="ex-header"><div class="ex-title-wrap"><span class="ex-icon">🧠</span><span class="ex-title">Quiz: Especificador de formato</span></div><span class="ex-xp">+30 XP</span></div>
+    <div class="ex-body">
+      <div class="ex-desc">Para imprimir um <strong>float com 2 casas decimais</strong>, qual especificador usar?</div>
+      <div class="quiz-options"><button class="quiz-opt" onclick="answerQuiz('tipos','A',this)">A) %d</button>
+<button class="quiz-opt" onclick="answerQuiz('tipos','B',this)">B) %s</button>
+<button class="quiz-opt" onclick="answerQuiz('tipos','C',this)">C) %.2f</button>
+<button class="quiz-opt" onclick="answerQuiz('tipos','D',this)">D) %float</button></div>
+      <div class="quiz-feedback" id="qf-tipos"></div>
+    </div>
+  </div></section><hr>
+
+<section class="section" id="operadores">
+  <div class="section-tag">// 04 — operadores e tabela verdade <span class="disc-pill">disciplina</span></div>
+  <h2>Operadores e Tabela Verdade</h2>
+  <h3>Operadores aritméticos</h3>
+  <div class="code-wrap"><div class="code-header"><span class="code-lang">C</span><button class="copy-btn" onclick="copyCode(this)">copiar</button></div>
+  <pre><span class="tp">int</span> a = <span class="num">10</span>, b = <span class="num">3</span>;
+a + b  <span class="cmt">// 13</span>   a - b  <span class="cmt">// 7</span>
+a * b  <span class="cmt">// 30</span>   a / b  <span class="cmt">// 3  (divisão INTEIRA!)</span>
+a % b  <span class="cmt">// 1   (módulo = resto)</span>
+(<span class="tp">float</span>)a / b  <span class="cmt">// 3.33 (cast força divisão real)</span>
+a++;  a--;    <span class="cmt">// incremento / decremento</span>
+a += <span class="num">5</span>;       <span class="cmt">// a = a + 5</span></pre></div>
+  <h3>Operadores relacionais</h3>
+  <div class="code-wrap"><div class="code-header"><span class="code-lang">C</span><button class="copy-btn" onclick="copyCode(this)">copiar</button></div>
+  <pre>a == b  <span class="cmt">// igual? (ATENÇÃO: == não é =)</span>
+a != b  <span class="cmt">// diferente?</span>
+a > b   <span class="cmt">// maior?</span>   a < b  <span class="cmt">// menor?</span>
+a >= b  <span class="cmt">// maior ou igual?</span></pre></div>
+  <h3>Operadores lógicos</h3>
+  <div class="code-wrap"><div class="code-header"><span class="code-lang">C</span><button class="copy-btn" onclick="copyCode(this)">copiar</button></div>
+  <pre>a > <span class="num">0</span> && b > <span class="num">0</span>   <span class="cmt">// E lógico (AND): ambos verdadeiros</span>
+a > <span class="num">0</span> || b > <span class="num">0</span>   <span class="cmt">// OU lógico (OR): pelo menos um</span>
+!(a == b)        <span class="cmt">// NÃO lógico (NOT): inverte</span></pre></div>
+  <h3>Tabela Verdade — AND (&&)</h3>
+  <table class="truth-table">
+    <tr><th>A</th><th>B</th><th>A AND B</th></tr>
+    <tr><td class="f">FALSO</td><td class="f">FALSO</td><td class="f">FALSO</td></tr>
+    <tr><td class="f">FALSO</td><td class="t">VERDADEIRO</td><td class="f">FALSO</td></tr>
+    <tr><td class="t">VERDADEIRO</td><td class="f">FALSO</td><td class="f">FALSO</td></tr>
+    <tr><td class="t">VERDADEIRO</td><td class="t">VERDADEIRO</td><td class="t">VERDADEIRO</td></tr>
+  </table>
+  <h3>Tabela Verdade — OR (||)</h3>
+  <table class="truth-table">
+    <tr><th>A</th><th>B</th><th>A OR B</th></tr>
+    <tr><td class="f">FALSO</td><td class="f">FALSO</td><td class="f">FALSO</td></tr>
+    <tr><td class="f">FALSO</td><td class="t">VERDADEIRO</td><td class="t">VERDADEIRO</td></tr>
+    <tr><td class="t">VERDADEIRO</td><td class="f">FALSO</td><td class="t">VERDADEIRO</td></tr>
+    <tr><td class="t">VERDADEIRO</td><td class="t">VERDADEIRO</td><td class="t">VERDADEIRO</td></tr>
+  </table>
+  <h3>Tabela Verdade — NOT (!)</h3>
+  <table class="truth-table">
+    <tr><th>A</th><th>NOT A</th></tr>
+    <tr><td class="f">FALSO</td><td class="t">VERDADEIRO</td></tr>
+    <tr><td class="t">VERDADEIRO</td><td class="f">FALSO</td></tr>
+  </table>
+  <div class="warn"><strong>⚠️ = vs ==</strong> Um <code>=</code> é atribuição. Dois <code>==</code> é comparação. Usar <code>=</code> dentro de um if é bug clássico.</div>
+  <div class="warn"><strong>⚠️ Divisão inteira!</strong> <code>10 / 3</code> retorna <code>3</code>. Para resultado real: <code>(float)10 / 3</code> → <code>3.33</code></div>
+
+  <div class="section-notes">
+    <div class="notes-label">📝 Minhas anotações <span class="notes-saved-ind" id="ns-operadores">salvo ✓</span></div>
+    <textarea class="notes-area" id="notes-operadores" placeholder="Regras da tabela verdade com minhas palavras..."></textarea>
+  </div>
+  <div class="exercise" id="ex-operadores">
+    <div class="ex-header"><div class="ex-title-wrap"><span class="ex-icon">🧠</span><span class="ex-title">Quiz: Tabela Verdade AND</span></div><span class="ex-xp">+30 XP</span></div>
+    <div class="ex-body">
+      <div class="ex-desc">Se <code>A = VERDADEIRO</code> e <code>B = FALSO</code>, qual o resultado de <code>A AND B</code>?</div>
+      <div class="quiz-options"><button class="quiz-opt" onclick="answerQuiz('operadores','A',this)">A) VERDADEIRO</button>
+<button class="quiz-opt" onclick="answerQuiz('operadores','B',this)">B) FALSO</button>
+<button class="quiz-opt" onclick="answerQuiz('operadores','C',this)">C) Depende</button>
+<button class="quiz-opt" onclick="answerQuiz('operadores','D',this)">D) Erro</button></div>
+      <div class="quiz-feedback" id="qf-operadores"></div>
+    </div>
+  </div></section><hr>
+
+<section class="section" id="io">
+  <div class="section-tag">// 05 — entrada e saída <span class="disc-pill">disciplina</span></div>
+  <h2>Comandos de Entrada e Saída</h2>
+  <div class="code-wrap"><div class="code-header"><span class="code-lang">C</span><span class="code-fname">io.c</span><button class="copy-btn" onclick="copyCode(this)">copiar</button></div>
+  <pre><span class="pp">#include</span> <span class="str">&lt;stdio.h&gt;</span>
+<span class="tp">int</span> num; <span class="tp">float</span> nota; <span class="tp">char</span> nome[<span class="num">50</span>];
+<span class="fn">scanf</span>(<span class="str">"%d"</span>, &num);    <span class="cmt">// & = endereço da variável (obrigatório)</span>
+<span class="fn">scanf</span>(<span class="str">"%f"</span>, &nota);
+<span class="fn">scanf</span>(<span class="str">"%s"</span>, nome);   <span class="cmt">// string: sem & (array já é ponteiro)</span>
+<span class="fn">printf</span>(<span class="str">"Olá %s! Num: %d, Nota: %.1f\n"</span>, nome, num, nota);</pre></div>
+  <div class="warn"><strong>⚠️ O & no scanf!</strong> Para int/float/char use <code>&variavel</code>. Para char[] (strings) não use &.</div>
+
+  <div class="section-notes">
+    <div class="notes-label">📝 Minhas anotações <span class="notes-saved-ind" id="ns-io">salvo ✓</span></div>
+    <textarea class="notes-area" id="notes-io" placeholder="Diferença entre printf e scanf, quando usar &..."></textarea>
+  </div><div class="exercise" id="ex-io">
+    <div class="ex-header"><div class="ex-title-wrap"><span class="ex-icon">💻</span><span class="ex-title">Código: Leia e calcule o dobro</span></div><span class="ex-xp">+60 XP</span></div>
+    <div class="ex-body">
+      <div class="ex-desc">Leia um inteiro e imprima seu <strong>dobro</strong>. Ex: entrada <code>7</code> → <code>Dobro: 14</code></div>
+      <div class="stdin-wrap"><div class="stdin-label">Entrada (stdin) <span>scanf</span></div><textarea class="stdin-input" id="stdin-io" placeholder="7" rows="2"></textarea></div>
+      <textarea class="ex-code-area" id="code-io" style="min-height:140px" placeholder="#include ..."></textarea>
+      <div class="ex-actions">
+        <button class="btn-run" onclick="runEx('io')">▶ Compilar e Executar</button>
+        <button class="btn-sm" onclick="toggleHint('io')">💡 Dica</button>
+        <button class="btn-sm purple" id="btn-ai-io" style="display:none" onclick="getAiHelp('io')">🤖 Analisar erro</button>
+        <button class="btn-sm orange" id="btn-sol-io" style="display:none" onclick="showSolution('io')">📖 Solução</button>
+        <span class="ex-attempts" id="att-io"></span>
+      </div>
+      <div class="ex-hint" id="hint-io"></div>
+      <div class="ex-ai-analysis" id="aia-io"><div class="ah">🤖 Análise da IA</div><div id="aia-body-io"></div></div>
+      <div class="ex-solution-box" id="sol-io"><div class="sol-header">📖 Solução comentada (−50% XP)</div><pre id="sol-body-io"></pre></div>
+      <div class="ex-loading" id="load-io"><div class="spinner"></div><span id="load-txt-io">Compilando...</span></div>
+      <div class="ex-output" id="out-io"><div class="ex-out-header"><span id="out-stat-io"></span></div><div class="ex-out-body" id="out-body-io"></div></div>
+      <div class="ex-done-badge" id="done-io">✅ Correto! +60 XP ganhos</div>
+    </div></div>
+</section><hr>
+
+<div class="boss-challenge" id="boss1">
+  <div class="boss-header"><div class="boss-skull">⚔️</div><div><div class="boss-h-tag">// Boss — Fase 1</div><div class="boss-h-name">Calculadora de IMC</div></div><span class="boss-h-xp">+150 XP</span></div>
+  <div class="boss-body">
+    <div class="boss-desc">Combine tipos, operadores e I/O num programa real.</div>
+    <div class="boss-objectives"><div class="boss-obj-title">Requisitos</div><ul class="boss-obj-list">
+      <li>Leia peso (float) e altura (float)</li>
+      <li>Calcule: <code>imc = peso / (altura * altura)</code></li>
+      <li>Imprima IMC com 2 casas decimais</li>
+      <li>Classifique: &lt;18.5 Abaixo | 18.5–24.9 Normal | 25–29.9 Sobrepeso | ≥30 Obeso</li>
+    </ul></div>
+    <div class="exercise" id="ex-boss1">
+    <div class="ex-header"><div class="ex-title-wrap"><span class="ex-icon">⚔️</span><span class="ex-title">Boss: Calculadora de IMC</span></div><span class="ex-xp">+150 XP</span></div>
+    <div class="ex-body">
+      <div class="ex-desc"></div>
+      <div class="stdin-wrap"><div class="stdin-label">Entrada (stdin) <span>scanf</span></div><textarea class="stdin-input" id="stdin-boss1" placeholder="70.0
+1.75" rows="3"></textarea></div>
+      <textarea class="ex-code-area" id="code-boss1" style="min-height:140px" placeholder="#include ..."></textarea>
+      <div class="ex-actions">
+        <button class="btn-run" onclick="runEx('boss1')">⚔️ Compilar e Enfrentar</button>
+        <button class="btn-sm" onclick="toggleHint('boss1')">💡 Dica</button>
+        <button class="btn-sm purple" id="btn-ai-boss1" style="display:none" onclick="getAiHelp('boss1')">🤖 Analisar erro</button>
+        
+        <span class="ex-attempts" id="att-boss1"></span>
+      </div>
+      <div class="ex-hint" id="hint-boss1"></div>
+      <div class="ex-ai-analysis" id="aia-boss1"><div class="ah">🤖 Análise da IA</div><div id="aia-body-boss1"></div></div>
+      <div class="ex-solution-box" id="sol-boss1"><div class="sol-header">📖 Solução comentada (−50% XP)</div><pre id="sol-body-boss1"></pre></div>
+      <div class="ex-loading" id="load-boss1"><div class="spinner"></div><span id="load-txt-boss1">Compilando...</span></div>
+      <div class="ex-output" id="out-boss1"><div class="ex-out-header"><span id="out-stat-boss1"></span></div><div class="ex-out-body" id="out-body-boss1"></div></div>
+      <div class="ex-done-badge" id="done-boss1">✅ Correto! +150 XP ganhos</div>
+    </div></div></div></div>
+
+<div class="phase-divider pd2"><div class="ph-icon">🔀</div><div><div class="ph-label">Fase 2</div><div class="ph-name">Controle de Fluxo</div><div class="ph-desc">Decisão e repetição</div></div><span class="ph-badge badge-disc">na disciplina</span></div>
+
+<section class="section" id="condicionais">
+  <div class="section-tag">// 06 — estruturas de decisão <span class="disc-pill">disciplina</span></div>
+  <h2>Estruturas de Decisão (if/else)</h2>
+  <div class="code-wrap"><div class="code-header"><span class="code-lang">C</span><button class="copy-btn" onclick="copyCode(this)">copiar</button></div>
+  <pre><span class="kw">if</span> (nota >= <span class="num">90</span>) {
+    <span class="fn">printf</span>(<span class="str">"A — Excelente!\n"</span>);
+} <span class="kw">else if</span> (nota >= <span class="num">70</span>) {
+    <span class="fn">printf</span>(<span class="str">"B — Bom.\n"</span>);
+} <span class="kw">else</span> {
+    <span class="fn">printf</span>(<span class="str">"Reprovado.\n"</span>);
+}
+<span class="cmt">// Ternário: condição ? verdadeiro : falso</span>
+<span class="tp">int</span> aprovado = (nota >= <span class="num">50</span>) ? <span class="num">1</span> : <span class="num">0</span>;</pre></div>
+
+  <div class="section-notes">
+    <div class="notes-label">📝 Minhas anotações <span class="notes-saved-ind" id="ns-condicionais">salvo ✓</span></div>
+    <textarea class="notes-area" id="notes-condicionais" placeholder="Quando usar if, else if, else..."></textarea>
+  </div><div class="exercise" id="ex-condicionais">
+    <div class="ex-header"><div class="ex-title-wrap"><span class="ex-icon">💻</span><span class="ex-title">Código: Positivo, Negativo ou Zero</span></div><span class="ex-xp">+60 XP</span></div>
+    <div class="ex-body">
+      <div class="ex-desc">Leia um inteiro e imprima <strong>Positivo</strong>, <strong>Negativo</strong> ou <strong>Zero</strong>.</div>
+      <div class="stdin-wrap"><div class="stdin-label">Entrada (stdin) <span>scanf</span></div><textarea class="stdin-input" id="stdin-condicionais" placeholder="-5" rows="2"></textarea></div>
+      <textarea class="ex-code-area" id="code-condicionais" style="min-height:140px" placeholder="#include ..."></textarea>
+      <div class="ex-actions">
+        <button class="btn-run" onclick="runEx('condicionais')">▶ Compilar e Executar</button>
+        <button class="btn-sm" onclick="toggleHint('condicionais')">💡 Dica</button>
+        <button class="btn-sm purple" id="btn-ai-condicionais" style="display:none" onclick="getAiHelp('condicionais')">🤖 Analisar erro</button>
+        <button class="btn-sm orange" id="btn-sol-condicionais" style="display:none" onclick="showSolution('condicionais')">📖 Solução</button>
+        <span class="ex-attempts" id="att-condicionais"></span>
+      </div>
+      <div class="ex-hint" id="hint-condicionais"></div>
+      <div class="ex-ai-analysis" id="aia-condicionais"><div class="ah">🤖 Análise da IA</div><div id="aia-body-condicionais"></div></div>
+      <div class="ex-solution-box" id="sol-condicionais"><div class="sol-header">📖 Solução comentada (−50% XP)</div><pre id="sol-body-condicionais"></pre></div>
+      <div class="ex-loading" id="load-condicionais"><div class="spinner"></div><span id="load-txt-condicionais">Compilando...</span></div>
+      <div class="ex-output" id="out-condicionais"><div class="ex-out-header"><span id="out-stat-condicionais"></span></div><div class="ex-out-body" id="out-body-condicionais"></div></div>
+      <div class="ex-done-badge" id="done-condicionais">✅ Correto! +60 XP ganhos</div>
+    </div></div>
+</section><hr>
+
+<section class="section" id="loops">
+  <div class="section-tag">// 07 — estrutura de repetição <span class="disc-pill">disciplina</span></div>
+  <h2>Estruturas de Repetição</h2>
+  <div class="code-wrap"><div class="code-header"><span class="code-lang">C</span><button class="copy-btn" onclick="copyCode(this)">copiar</button></div>
+  <pre><span class="cmt">// FOR — quando sabe quantas iterações</span>
+<span class="kw">for</span> (<span class="tp">int</span> i = <span class="num">0</span>; i < <span class="num">5</span>; i++) { <span class="fn">printf</span>(<span class="str">"%d "</span>, i); }
+
+<span class="cmt">// WHILE — enquanto condição verdadeira</span>
+<span class="tp">int</span> n = <span class="num">1</span>;
+<span class="kw">while</span> (n <= <span class="num">10</span>) { <span class="fn">printf</span>(<span class="str">"%d "</span>, n); n++; }
+
+<span class="cmt">// DO-WHILE — executa pelo menos uma vez</span>
+<span class="kw">do</span> { <span class="fn">scanf</span>(<span class="str">"%d"</span>, &n); } <span class="kw">while</span> (n <= <span class="num">0</span>);
+
+<span class="kw">break</span>;    <span class="cmt">// para o loop imediatamente</span>
+<span class="kw">continue</span>; <span class="cmt">// pula para próxima iteração</span></pre></div>
+
+  <div class="section-notes">
+    <div class="notes-label">📝 Minhas anotações <span class="notes-saved-ind" id="ns-loops">salvo ✓</span></div>
+    <textarea class="notes-area" id="notes-loops" placeholder="Quando usar for vs while vs do-while..."></textarea>
+  </div><div class="exercise" id="ex-loops">
+    <div class="ex-header"><div class="ex-title-wrap"><span class="ex-icon">💻</span><span class="ex-title">Código: Soma de 1 a 100</span></div><span class="ex-xp">+70 XP</span></div>
+    <div class="ex-body">
+      <div class="ex-desc">Use um loop <code>for</code> para calcular a soma de 1 a 100. Resultado: <strong>5050</strong></div>
+      <textarea class="ex-code-area" id="code-loops" style="min-height:140px" placeholder="#include ..."></textarea>
+      <div class="ex-actions">
+        <button class="btn-run" onclick="runEx('loops')">▶ Compilar e Executar</button>
+        <button class="btn-sm" onclick="toggleHint('loops')">💡 Dica</button>
+        <button class="btn-sm purple" id="btn-ai-loops" style="display:none" onclick="getAiHelp('loops')">🤖 Analisar erro</button>
+        <button class="btn-sm orange" id="btn-sol-loops" style="display:none" onclick="showSolution('loops')">📖 Solução</button>
+        <span class="ex-attempts" id="att-loops"></span>
+      </div>
+      <div class="ex-hint" id="hint-loops"></div>
+      <div class="ex-ai-analysis" id="aia-loops"><div class="ah">🤖 Análise da IA</div><div id="aia-body-loops"></div></div>
+      <div class="ex-solution-box" id="sol-loops"><div class="sol-header">📖 Solução comentada (−50% XP)</div><pre id="sol-body-loops"></pre></div>
+      <div class="ex-loading" id="load-loops"><div class="spinner"></div><span id="load-txt-loops">Compilando...</span></div>
+      <div class="ex-output" id="out-loops"><div class="ex-out-header"><span id="out-stat-loops"></span></div><div class="ex-out-body" id="out-body-loops"></div></div>
+      <div class="ex-done-badge" id="done-loops">✅ Correto! +70 XP ganhos</div>
+    </div></div>
+</section><hr>
+
+<section class="section" id="switch">
+  <div class="section-tag">// 08 — switch/case <span class="extra-pill">além da disciplina</span></div>
+  <h2>Switch / Case</h2>
+  <div class="code-wrap"><div class="code-header"><span class="code-lang">C</span><button class="copy-btn" onclick="copyCode(this)">copiar</button></div>
+  <pre><span class="kw">switch</span> (dia) {
+    <span class="kw">case</span> <span class="num">1</span>: <span class="fn">printf</span>(<span class="str">"Segunda\n"</span>); <span class="kw">break</span>;
+    <span class="kw">case</span> <span class="num">6</span>:
+    <span class="kw">case</span> <span class="num">7</span>: <span class="fn">printf</span>(<span class="str">"Fim de semana!\n"</span>); <span class="kw">break</span>;
+    <span class="kw">default</span>: <span class="fn">printf</span>(<span class="str">"Dia inválido\n"</span>);
+}</pre></div>
+  <div class="warn"><strong>⚠️ Não esqueça o break!</strong> Sem ele ocorre "fall-through": execução continua para o próximo case.</div>
+
+  <div class="exercise" id="ex-switch">
+    <div class="ex-header"><div class="ex-title-wrap"><span class="ex-icon">🧠</span><span class="ex-title">Quiz: Fall-through</span></div><span class="ex-xp">+30 XP</span></div>
+    <div class="ex-body">
+      <div class="ex-desc">Sem <code>break</code> em um case, o que acontece?</div>
+      <div class="quiz-options"><button class="quiz-opt" onclick="answerQuiz('switch','A',this)">A) Erro de compilação</button>
+<button class="quiz-opt" onclick="answerQuiz('switch','B',this)">B) Programa encerra</button>
+<button class="quiz-opt" onclick="answerQuiz('switch','C',this)">C) Execução cai para o próximo case (fall-through)</button>
+<button class="quiz-opt" onclick="answerQuiz('switch','D',this)">D) Não faz diferença</button></div>
+      <div class="quiz-feedback" id="qf-switch"></div>
+    </div>
+  </div></section><hr>
+
+<div class="boss-challenge" id="boss2">
+  <div class="boss-header"><div class="boss-skull">⚔️</div><div><div class="boss-h-tag">// Boss — Fase 2</div><div class="boss-h-name">Validador de Senha</div></div><span class="boss-h-xp">+150 XP</span></div>
+  <div class="boss-body">
+    <div class="boss-desc">Decisão + repetição juntos.</div>
+    <div class="boss-objectives"><div class="boss-obj-title">Requisitos</div><ul class="boss-obj-list">
+      <li>Senha secreta como constante (ex: 1234)</li>
+      <li>3 tentativas em loop com "Tentativa X de 3"</li>
+      <li>Acerto → "Acesso liberado!" e encerra</li>
+      <li>3 erros → "Conta bloqueada!"</li>
+    </ul></div>
+    <div class="exercise" id="ex-boss2">
+    <div class="ex-header"><div class="ex-title-wrap"><span class="ex-icon">⚔️</span><span class="ex-title">Boss: Validador de Senha</span></div><span class="ex-xp">+150 XP</span></div>
+    <div class="ex-body">
+      <div class="ex-desc"></div>
+      <div class="stdin-wrap"><div class="stdin-label">Entrada (stdin) <span>scanf</span></div><textarea class="stdin-input" id="stdin-boss2" placeholder="0000
+1111
+1234" rows="4"></textarea></div>
+      <textarea class="ex-code-area" id="code-boss2" style="min-height:140px" placeholder="#include ..."></textarea>
+      <div class="ex-actions">
+        <button class="btn-run" onclick="runEx('boss2')">⚔️ Compilar e Enfrentar</button>
+        <button class="btn-sm" onclick="toggleHint('boss2')">💡 Dica</button>
+        <button class="btn-sm purple" id="btn-ai-boss2" style="display:none" onclick="getAiHelp('boss2')">🤖 Analisar erro</button>
+        
+        <span class="ex-attempts" id="att-boss2"></span>
+      </div>
+      <div class="ex-hint" id="hint-boss2"></div>
+      <div class="ex-ai-analysis" id="aia-boss2"><div class="ah">🤖 Análise da IA</div><div id="aia-body-boss2"></div></div>
+      <div class="ex-solution-box" id="sol-boss2"><div class="sol-header">📖 Solução comentada (−50% XP)</div><pre id="sol-body-boss2"></pre></div>
+      <div class="ex-loading" id="load-boss2"><div class="spinner"></div><span id="load-txt-boss2">Compilando...</span></div>
+      <div class="ex-output" id="out-boss2"><div class="ex-out-header"><span id="out-stat-boss2"></span></div><div class="ex-out-body" id="out-body-boss2"></div></div>
+      <div class="ex-done-badge" id="done-boss2">✅ Correto! +150 XP ganhos</div>
+    </div></div></div></div>
+
+<div class="phase-divider pd3"><div class="ph-icon">🏗️</div><div><div class="ph-label">Fase 3</div><div class="ph-name">Estruturas</div><div class="ph-desc">Funções, vetores, strings e structs</div></div><div style="display:flex;gap:6px;margin-left:auto;flex-shrink:0"><span class="ph-badge badge-disc">disciplina</span><span class="ph-badge badge-extra">além</span></div></div>
+
+<section class="section" id="funcoes">
+  <div class="section-tag">// 09 — funções <span class="extra-pill">além da disciplina</span></div>
+  <h2>Funções</h2>
+  <div class="code-wrap"><div class="code-header"><span class="code-lang">C</span><button class="copy-btn" onclick="copyCode(this)">copiar</button></div>
+  <pre><span class="tp">int</span> <span class="fn">soma</span>(<span class="tp">int</span> a, <span class="tp">int</span> b);   <span class="cmt">// protótipo</span>
+<span class="kw">void</span> <span class="fn">saudar</span>(<span class="tp">char</span> nome[]);
+
+<span class="tp">int</span> <span class="fn">main</span>() {
+    <span class="fn">printf</span>(<span class="str">"%d\n"</span>, <span class="fn">soma</span>(<span class="num">3</span>,<span class="num">4</span>)); <span class="cmt">// 7</span>
+    <span class="fn">saudar</span>(<span class="str">"Ana"</span>);             <span class="cmt">// Olá, Ana!</span>
+    <span class="kw">return</span> <span class="num">0</span>;
+}
+<span class="tp">int</span> <span class="fn">soma</span>(<span class="tp">int</span> a, <span class="tp">int</span> b) { <span class="kw">return</span> a + b; }
+<span class="kw">void</span> <span class="fn">saudar</span>(<span class="tp">char</span> n[]) { <span class="fn">printf</span>(<span class="str">"Olá, %s!\n"</span>, n); }</pre></div>
+  <div class="exercise" id="ex-funcoes">
+    <div class="ex-header"><div class="ex-title-wrap"><span class="ex-icon">💻</span><span class="ex-title">Código: Função Fatorial</span></div><span class="ex-xp">+80 XP</span></div>
+    <div class="ex-body">
+      <div class="ex-desc">Escreva <code>int fatorial(int n)</code> iterativa. No main, leia n e imprima n!. <em>5! = 120</em></div>
+      <div class="stdin-wrap"><div class="stdin-label">Entrada (stdin) <span>scanf</span></div><textarea class="stdin-input" id="stdin-funcoes" placeholder="5" rows="2"></textarea></div>
+      <textarea class="ex-code-area" id="code-funcoes" style="min-height:140px" placeholder="#include ..."></textarea>
+      <div class="ex-actions">
+        <button class="btn-run" onclick="runEx('funcoes')">▶ Compilar e Executar</button>
+        <button class="btn-sm" onclick="toggleHint('funcoes')">💡 Dica</button>
+        <button class="btn-sm purple" id="btn-ai-funcoes" style="display:none" onclick="getAiHelp('funcoes')">🤖 Analisar erro</button>
+        <button class="btn-sm orange" id="btn-sol-funcoes" style="display:none" onclick="showSolution('funcoes')">📖 Solução</button>
+        <span class="ex-attempts" id="att-funcoes"></span>
+      </div>
+      <div class="ex-hint" id="hint-funcoes"></div>
+      <div class="ex-ai-analysis" id="aia-funcoes"><div class="ah">🤖 Análise da IA</div><div id="aia-body-funcoes"></div></div>
+      <div class="ex-solution-box" id="sol-funcoes"><div class="sol-header">📖 Solução comentada (−50% XP)</div><pre id="sol-body-funcoes"></pre></div>
+      <div class="ex-loading" id="load-funcoes"><div class="spinner"></div><span id="load-txt-funcoes">Compilando...</span></div>
+      <div class="ex-output" id="out-funcoes"><div class="ex-out-header"><span id="out-stat-funcoes"></span></div><div class="ex-out-body" id="out-body-funcoes"></div></div>
+      <div class="ex-done-badge" id="done-funcoes">✅ Correto! +80 XP ganhos</div>
+    </div></div>
+</section><hr>
+
+<section class="section" id="arrays">
+  <div class="section-tag">// 10 — vetores e matrizes <span class="disc-pill">disciplina</span></div>
+  <h2>Vetores e Matrizes</h2>
+  <div class="code-wrap"><div class="code-header"><span class="code-lang">C</span><button class="copy-btn" onclick="copyCode(this)">copiar</button></div>
+  <pre><span class="tp">int</span> notas[<span class="num">5</span>] = {<span class="num">7</span>,<span class="num">8</span>,<span class="num">9</span>,<span class="num">6</span>,<span class="num">10</span>};
+<span class="kw">for</span>(<span class="tp">int</span> i=<span class="num">0</span>; i<<span class="num">5</span>; i++) <span class="fn">printf</span>(<span class="str">"%d "</span>, notas[i]); <span class="cmt">// índice começa em 0!</span>
+
+<span class="tp">int</span> mat[<span class="num">3</span>][<span class="num">3</span>] = {{<span class="num">1</span>,<span class="num">2</span>,<span class="num">3</span>},{<span class="num">4</span>,<span class="num">5</span>,<span class="num">6</span>},{<span class="num">7</span>,<span class="num">8</span>,<span class="num">9</span>}};
+<span class="kw">for</span>(<span class="tp">int</span> i=<span class="num">0</span>;i<<span class="num">3</span>;i++) <span class="kw">for</span>(<span class="tp">int</span> j=<span class="num">0</span>;j<<span class="num">3</span>;j++) <span class="fn">printf</span>(<span class="str">"%d "</span>,mat[i][j]);</pre></div>
+  <div class="warn"><strong>⚠️ Índice começa em 0!</strong> Array de 5 tem índices 0,1,2,3,4. Acessar índice 5 causa comportamento indefinido.</div>
+  <div class="exercise" id="ex-arrays">
+    <div class="ex-header"><div class="ex-title-wrap"><span class="ex-icon">💻</span><span class="ex-title">Código: Maior elemento do array</span></div><span class="ex-xp">+80 XP</span></div>
+    <div class="ex-body">
+      <div class="ex-desc">Crie um array de <strong>6 inteiros</strong> e encontre e imprima o <strong>maior valor</strong>.</div>
+      <textarea class="ex-code-area" id="code-arrays" style="min-height:140px" placeholder="#include ..."></textarea>
+      <div class="ex-actions">
+        <button class="btn-run" onclick="runEx('arrays')">▶ Compilar e Executar</button>
+        <button class="btn-sm" onclick="toggleHint('arrays')">💡 Dica</button>
+        <button class="btn-sm purple" id="btn-ai-arrays" style="display:none" onclick="getAiHelp('arrays')">🤖 Analisar erro</button>
+        <button class="btn-sm orange" id="btn-sol-arrays" style="display:none" onclick="showSolution('arrays')">📖 Solução</button>
+        <span class="ex-attempts" id="att-arrays"></span>
+      </div>
+      <div class="ex-hint" id="hint-arrays"></div>
+      <div class="ex-ai-analysis" id="aia-arrays"><div class="ah">🤖 Análise da IA</div><div id="aia-body-arrays"></div></div>
+      <div class="ex-solution-box" id="sol-arrays"><div class="sol-header">📖 Solução comentada (−50% XP)</div><pre id="sol-body-arrays"></pre></div>
+      <div class="ex-loading" id="load-arrays"><div class="spinner"></div><span id="load-txt-arrays">Compilando...</span></div>
+      <div class="ex-output" id="out-arrays"><div class="ex-out-header"><span id="out-stat-arrays"></span></div><div class="ex-out-body" id="out-body-arrays"></div></div>
+      <div class="ex-done-badge" id="done-arrays">✅ Correto! +80 XP ganhos</div>
+    </div></div>
+</section><hr>
+
+<section class="section" id="strings">
+  <div class="section-tag">// 11 — strings <span class="extra-pill">além da disciplina</span></div>
+  <h2>Strings</h2>
+  <p>Em C, strings são arrays de <code>char</code> terminados com <code>'\0'</code>.</p>
+  <div class="code-wrap"><div class="code-header"><span class="code-lang">C</span><button class="copy-btn" onclick="copyCode(this)">copiar</button></div>
+  <pre><span class="pp">#include</span> <span class="str">&lt;string.h&gt;</span>
+<span class="tp">char</span> s[<span class="num">50</span>] = <span class="str">"Maria"</span>;
+<span class="fn">strlen</span>(s)           <span class="cmt">// 5 — tamanho</span>
+<span class="fn">strcpy</span>(dest, s)     <span class="cmt">// copia</span>
+<span class="fn">strcat</span>(dest, <span class="str">" S"</span>) <span class="cmt">// concatena</span>
+<span class="fn">strcmp</span>(s1, s2)      <span class="cmt">// 0 se iguais — NUNCA use ==</span></pre></div>
+
+  <div class="exercise" id="ex-strings">
+    <div class="ex-header"><div class="ex-title-wrap"><span class="ex-icon">🧠</span><span class="ex-title">Quiz: Comparar strings</span></div><span class="ex-xp">+30 XP</span></div>
+    <div class="ex-body">
+      <div class="ex-desc">Qual função compara duas strings em C?</div>
+      <div class="quiz-options"><button class="quiz-opt" onclick="answerQuiz('strings','A',this)">A) strequal(s1,s2)</button>
+<button class="quiz-opt" onclick="answerQuiz('strings','B',this)">B) strcmp(s1,s2)</button>
+<button class="quiz-opt" onclick="answerQuiz('strings','C',this)">C) s1 == s2</button>
+<button class="quiz-opt" onclick="answerQuiz('strings','D',this)">D) compare(s1,s2)</button></div>
+      <div class="quiz-feedback" id="qf-strings"></div>
+    </div>
+  </div></section><hr>
+
+<section class="section" id="structs">
+  <div class="section-tag">// 12 — structs <span class="extra-pill">além da disciplina</span></div>
+  <h2>Structs</h2>
+  <div class="code-wrap"><div class="code-header"><span class="code-lang">C</span><button class="copy-btn" onclick="copyCode(this)">copiar</button></div>
+  <pre><span class="kw">typedef struct</span> {
+    <span class="tp">char</span>  nome[<span class="num">50</span>]; <span class="tp">int</span> idade; <span class="tp">float</span> nota;
+} Aluno;
+Aluno a1 = {<span class="str">"Carlos"</span>, <span class="num">20</span>, <span class="num">8.5f</span>};
+<span class="fn">printf</span>(<span class="str">"%s | %d anos | %.1f\n"</span>, a1.nome, a1.idade, a1.nota);
+Aluno turma[<span class="num">30</span>];  <span class="cmt">// array de structs</span></pre></div>
+  <div class="exercise" id="ex-structs">
+    <div class="ex-header"><div class="ex-title-wrap"><span class="ex-icon">💻</span><span class="ex-title">Código: Struct Produto</span></div><span class="ex-xp">+90 XP</span></div>
+    <div class="ex-body">
+      <div class="ex-desc">Crie <code>struct Produto</code> com nome, preco (float) e quantidade (int). Crie 2 produtos e imprima.</div>
+      <textarea class="ex-code-area" id="code-structs" style="min-height:140px" placeholder="#include ..."></textarea>
+      <div class="ex-actions">
+        <button class="btn-run" onclick="runEx('structs')">▶ Compilar e Executar</button>
+        <button class="btn-sm" onclick="toggleHint('structs')">💡 Dica</button>
+        <button class="btn-sm purple" id="btn-ai-structs" style="display:none" onclick="getAiHelp('structs')">🤖 Analisar erro</button>
+        <button class="btn-sm orange" id="btn-sol-structs" style="display:none" onclick="showSolution('structs')">📖 Solução</button>
+        <span class="ex-attempts" id="att-structs"></span>
+      </div>
+      <div class="ex-hint" id="hint-structs"></div>
+      <div class="ex-ai-analysis" id="aia-structs"><div class="ah">🤖 Análise da IA</div><div id="aia-body-structs"></div></div>
+      <div class="ex-solution-box" id="sol-structs"><div class="sol-header">📖 Solução comentada (−50% XP)</div><pre id="sol-body-structs"></pre></div>
+      <div class="ex-loading" id="load-structs"><div class="spinner"></div><span id="load-txt-structs">Compilando...</span></div>
+      <div class="ex-output" id="out-structs"><div class="ex-out-header"><span id="out-stat-structs"></span></div><div class="ex-out-body" id="out-body-structs"></div></div>
+      <div class="ex-done-badge" id="done-structs">✅ Correto! +90 XP ganhos</div>
+    </div></div>
+</section><hr>
+
+<div class="boss-challenge" id="boss3">
+  <div class="boss-header"><div class="boss-skull">⚔️</div><div><div class="boss-h-tag">// Boss — Fase 3</div><div class="boss-h-name">Sistema de Notas</div></div><span class="boss-h-xp">+200 XP</span></div>
+  <div class="boss-body">
+    <div class="boss-desc">Structs + arrays + funções.</div>
+    <div class="boss-objectives"><div class="boss-obj-title">Requisitos</div><ul class="boss-obj-list">
+      <li>Struct Aluno: nome, float notas[3], float media</li>
+      <li>Função <code>calcularMedia(Aluno *a)</code></li>
+      <li>3 alunos, calcular médias, imprimir tabela</li>
+      <li>Mostrar quem tem maior média</li>
+    </ul></div>
+    <div class="exercise" id="ex-boss3">
+    <div class="ex-header"><div class="ex-title-wrap"><span class="ex-icon">⚔️</span><span class="ex-title">Boss: Sistema de Notas</span></div><span class="ex-xp">+200 XP</span></div>
+    <div class="ex-body">
+      <div class="ex-desc"></div>
+      <textarea class="ex-code-area" id="code-boss3" style="min-height:170px" placeholder="#include ..."></textarea>
+      <div class="ex-actions">
+        <button class="btn-run" onclick="runEx('boss3')">⚔️ Compilar e Enfrentar</button>
+        <button class="btn-sm" onclick="toggleHint('boss3')">💡 Dica</button>
+        <button class="btn-sm purple" id="btn-ai-boss3" style="display:none" onclick="getAiHelp('boss3')">🤖 Analisar erro</button>
+        
+        <span class="ex-attempts" id="att-boss3"></span>
+      </div>
+      <div class="ex-hint" id="hint-boss3"></div>
+      <div class="ex-ai-analysis" id="aia-boss3"><div class="ah">🤖 Análise da IA</div><div id="aia-body-boss3"></div></div>
+      <div class="ex-solution-box" id="sol-boss3"><div class="sol-header">📖 Solução comentada (−50% XP)</div><pre id="sol-body-boss3"></pre></div>
+      <div class="ex-loading" id="load-boss3"><div class="spinner"></div><span id="load-txt-boss3">Compilando...</span></div>
+      <div class="ex-output" id="out-boss3"><div class="ex-out-header"><span id="out-stat-boss3"></span></div><div class="ex-out-body" id="out-body-boss3"></div></div>
+      <div class="ex-done-badge" id="done-boss3">✅ Correto! +200 XP ganhos</div>
+    </div></div></div></div>
+
+<div class="phase-divider pd4"><div class="ph-icon">🧠</div><div><div class="ph-label">Fase 4</div><div class="ph-name">Avançado</div><div class="ph-desc">Ponteiros, memória dinâmica e arquivos</div></div><span class="ph-badge badge-extra">além da disciplina</span></div>
+
+<section class="section" id="ponteiros">
+  <div class="section-tag">// 13 — ponteiros ⭐ <span class="extra-pill">além da disciplina</span></div>
+  <h2>Ponteiros</h2>
+  <p>Ponteiros armazenam <strong>endereços de memória</strong>. O conceito mais poderoso do C.</p>
+  <div class="code-wrap"><div class="code-header"><span class="code-lang">C</span><button class="copy-btn" onclick="copyCode(this)">copiar</button></div>
+  <pre><span class="tp">int</span>  x = <span class="num">42</span>;
+<span class="tp">int</span> *p = &x;    <span class="cmt">// p aponta para x</span>
+<span class="fn">printf</span>(<span class="str">"%d\n"</span>, x);   <span class="cmt">// 42</span>
+<span class="fn">printf</span>(<span class="str">"%d\n"</span>, *p);  <span class="cmt">// 42 (derreferência)</span>
+*p = <span class="num">100</span>;
+<span class="fn">printf</span>(<span class="str">"%d\n"</span>, x);   <span class="cmt">// 100! (modificou x via ponteiro)</span></pre></div>
+  <div class="warn"><strong>⚠️ Sempre inicialize!</strong> Use <code>int *p = NULL;</code> quando não tiver endereço ainda.</div>
+  <div class="exercise" id="ex-ponteiros">
+    <div class="ex-header"><div class="ex-title-wrap"><span class="ex-icon">💻</span><span class="ex-title">Código: Troca com ponteiros</span></div><span class="ex-xp">+100 XP</span></div>
+    <div class="ex-body">
+      <div class="ex-desc">Escreva <code>void trocar(int *a, int *b)</code> que troca os valores. No main, declare 2 inteiros, chame e mostre antes/depois.</div>
+      <textarea class="ex-code-area" id="code-ponteiros" style="min-height:140px" placeholder="#include ..."></textarea>
+      <div class="ex-actions">
+        <button class="btn-run" onclick="runEx('ponteiros')">▶ Compilar e Executar</button>
+        <button class="btn-sm" onclick="toggleHint('ponteiros')">💡 Dica</button>
+        <button class="btn-sm purple" id="btn-ai-ponteiros" style="display:none" onclick="getAiHelp('ponteiros')">🤖 Analisar erro</button>
+        <button class="btn-sm orange" id="btn-sol-ponteiros" style="display:none" onclick="showSolution('ponteiros')">📖 Solução</button>
+        <span class="ex-attempts" id="att-ponteiros"></span>
+      </div>
+      <div class="ex-hint" id="hint-ponteiros"></div>
+      <div class="ex-ai-analysis" id="aia-ponteiros"><div class="ah">🤖 Análise da IA</div><div id="aia-body-ponteiros"></div></div>
+      <div class="ex-solution-box" id="sol-ponteiros"><div class="sol-header">📖 Solução comentada (−50% XP)</div><pre id="sol-body-ponteiros"></pre></div>
+      <div class="ex-loading" id="load-ponteiros"><div class="spinner"></div><span id="load-txt-ponteiros">Compilando...</span></div>
+      <div class="ex-output" id="out-ponteiros"><div class="ex-out-header"><span id="out-stat-ponteiros"></span></div><div class="ex-out-body" id="out-body-ponteiros"></div></div>
+      <div class="ex-done-badge" id="done-ponteiros">✅ Correto! +100 XP ganhos</div>
+    </div></div>
+</section><hr>
+
+<section class="section" id="memoria">
+  <div class="section-tag">// 14 — memória dinâmica <span class="extra-pill">além da disciplina</span></div>
+  <h2>Alocação Dinâmica de Memória</h2>
+  <div class="code-wrap"><div class="code-header"><span class="code-lang">C</span><button class="copy-btn" onclick="copyCode(this)">copiar</button></div>
+  <pre><span class="pp">#include</span> <span class="str">&lt;stdlib.h&gt;</span>
+<span class="tp">int</span> n = <span class="num">5</span>;
+<span class="tp">int</span> *v = (<span class="tp">int</span>*) <span class="fn">malloc</span>(n * <span class="kw">sizeof</span>(<span class="tp">int</span>));
+<span class="kw">if</span> (v == NULL) { <span class="fn">printf</span>(<span class="str">"Sem memória!\n"</span>); <span class="kw">return</span> <span class="num">1</span>; }
+<span class="kw">for</span>(<span class="tp">int</span> i=<span class="num">0</span>;i<n;i++) v[i]=i*i;
+<span class="fn">free</span>(v); v = NULL;  <span class="cmt">// SEMPRE liberar!</span></pre></div>
+  <div class="warn"><strong>⚠️ Memory Leak!</strong> Todo malloc precisa de free. Esquecer faz o programa consumir memória indefinidamente.</div>
+  <div class="exercise" id="ex-memoria">
+    <div class="ex-header"><div class="ex-title-wrap"><span class="ex-icon">💻</span><span class="ex-title">Código: Vetor dinâmico</span></div><span class="ex-xp">+100 XP</span></div>
+    <div class="ex-body">
+      <div class="ex-desc">Leia n, aloque com malloc, preencha com quadrados, imprima e libere com free.</div>
+      <div class="stdin-wrap"><div class="stdin-label">Entrada (stdin) <span>scanf</span></div><textarea class="stdin-input" id="stdin-memoria" placeholder="5" rows="2"></textarea></div>
+      <textarea class="ex-code-area" id="code-memoria" style="min-height:140px" placeholder="#include ..."></textarea>
+      <div class="ex-actions">
+        <button class="btn-run" onclick="runEx('memoria')">▶ Compilar e Executar</button>
+        <button class="btn-sm" onclick="toggleHint('memoria')">💡 Dica</button>
+        <button class="btn-sm purple" id="btn-ai-memoria" style="display:none" onclick="getAiHelp('memoria')">🤖 Analisar erro</button>
+        <button class="btn-sm orange" id="btn-sol-memoria" style="display:none" onclick="showSolution('memoria')">📖 Solução</button>
+        <span class="ex-attempts" id="att-memoria"></span>
+      </div>
+      <div class="ex-hint" id="hint-memoria"></div>
+      <div class="ex-ai-analysis" id="aia-memoria"><div class="ah">🤖 Análise da IA</div><div id="aia-body-memoria"></div></div>
+      <div class="ex-solution-box" id="sol-memoria"><div class="sol-header">📖 Solução comentada (−50% XP)</div><pre id="sol-body-memoria"></pre></div>
+      <div class="ex-loading" id="load-memoria"><div class="spinner"></div><span id="load-txt-memoria">Compilando...</span></div>
+      <div class="ex-output" id="out-memoria"><div class="ex-out-header"><span id="out-stat-memoria"></span></div><div class="ex-out-body" id="out-body-memoria"></div></div>
+      <div class="ex-done-badge" id="done-memoria">✅ Correto! +100 XP ganhos</div>
+    </div></div>
+</section><hr>
+
+<section class="section" id="arquivos">
+  <div class="section-tag">// 15 — arquivos <span class="extra-pill">além da disciplina</span></div>
+  <h2>Leitura e Escrita de Arquivos</h2>
+  <div class="code-wrap"><div class="code-header"><span class="code-lang">C</span><button class="copy-btn" onclick="copyCode(this)">copiar</button></div>
+  <pre><span class="tp">FILE</span> *f = <span class="fn">fopen</span>(<span class="str">"dados.txt"</span>, <span class="str">"w"</span>);
+<span class="kw">if</span>(!f){ <span class="fn">printf</span>(<span class="str">"Erro!\n"</span>); <span class="kw">return</span> <span class="num">1</span>; }
+<span class="fn">fprintf</span>(f, <span class="str">"Nome: Ana\n"</span>);
+<span class="fn">fclose</span>(f);
+f = <span class="fn">fopen</span>(<span class="str">"dados.txt"</span>, <span class="str">"r"</span>);
+<span class="tp">char</span> linha[<span class="num">100</span>];
+<span class="kw">while</span>(<span class="fn">fgets</span>(linha,<span class="num">100</span>,f)!=NULL) <span class="fn">printf</span>(<span class="str">"%s"</span>,linha);
+<span class="fn">fclose</span>(f);</pre></div>
+
+  <div class="exercise" id="ex-arquivos">
+    <div class="ex-header"><div class="ex-title-wrap"><span class="ex-icon">🧠</span><span class="ex-title">Quiz: Modo append</span></div><span class="ex-xp">+30 XP</span></div>
+    <div class="ex-body">
+      <div class="ex-desc">Quer adicionar texto ao <strong>final</strong> de arquivo sem apagar. Qual modo?</div>
+      <div class="quiz-options"><button class="quiz-opt" onclick="answerQuiz('arquivos','A',this)">A) "w"</button>
+<button class="quiz-opt" onclick="answerQuiz('arquivos','B',this)">B) "r+"</button>
+<button class="quiz-opt" onclick="answerQuiz('arquivos','C',this)">C) "a"</button>
+<button class="quiz-opt" onclick="answerQuiz('arquivos','D',this)">D) "rw"</button></div>
+      <div class="quiz-feedback" id="qf-arquivos"></div>
+    </div>
+  </div></section><hr>
+
+<div class="boss-challenge" id="boss4">
+  <div class="boss-header"><div class="boss-skull">💀</div><div><div class="boss-h-tag">// Boss Final</div><div class="boss-h-name">Lista Dinâmica de Contatos</div></div><span class="boss-h-xp">+300 XP</span></div>
+  <div class="boss-body">
+    <div class="boss-desc">Use TUDO: structs, ponteiros, malloc, funções e arquivos.</div>
+    <div class="boss-objectives"><div class="boss-obj-title">Requisitos</div><ul class="boss-obj-list">
+      <li>Struct Contato com nome e telefone</li>
+      <li>Aloque N contatos com malloc</li>
+      <li>Leia os dados de cada contato</li>
+      <li>Busca por nome</li>
+      <li>Salve em "contatos.txt" com fprintf</li>
+      <li>Libere com free()</li>
+    </ul></div>
+    <div class="exercise" id="ex-boss4">
+    <div class="ex-header"><div class="ex-title-wrap"><span class="ex-icon">💀</span><span class="ex-title">Boss Final: Lista de Contatos</span></div><span class="ex-xp">+300 XP</span></div>
+    <div class="ex-body">
+      <div class="ex-desc"></div>
+      <div class="stdin-wrap"><div class="stdin-label">Entrada (stdin) <span>scanf</span></div><textarea class="stdin-input" id="stdin-boss4" placeholder="2
+Ana
+11999
+Bob
+21888" rows="6"></textarea></div>
+      <textarea class="ex-code-area" id="code-boss4" style="min-height:180px" placeholder="#include ..."></textarea>
+      <div class="ex-actions">
+        <button class="btn-run" onclick="runEx('boss4')">⚔️ Compilar e Enfrentar</button>
+        <button class="btn-sm" onclick="toggleHint('boss4')">💡 Dica</button>
+        <button class="btn-sm purple" id="btn-ai-boss4" style="display:none" onclick="getAiHelp('boss4')">🤖 Analisar erro</button>
+        
+        <span class="ex-attempts" id="att-boss4"></span>
+      </div>
+      <div class="ex-hint" id="hint-boss4"></div>
+      <div class="ex-ai-analysis" id="aia-boss4"><div class="ah">🤖 Análise da IA</div><div id="aia-body-boss4"></div></div>
+      <div class="ex-solution-box" id="sol-boss4"><div class="sol-header">📖 Solução comentada (−50% XP)</div><pre id="sol-body-boss4"></pre></div>
+      <div class="ex-loading" id="load-boss4"><div class="spinner"></div><span id="load-txt-boss4">Compilando...</span></div>
+      <div class="ex-output" id="out-boss4"><div class="ex-out-header"><span id="out-stat-boss4"></span></div><div class="ex-out-body" id="out-body-boss4"></div></div>
+      <div class="ex-done-badge" id="done-boss4">✅ Correto! +300 XP ganhos</div>
+    </div></div></div></div>
+
+<div style="text-align:center;padding:40px 0 20px;border-top:1px solid var(--border);margin-top:40px">
+  <div style="font-family:'Fira Code',monospace;color:var(--gray);font-size:11px;margin-bottom:8px">// fim da trilha principal</div>
+  <div style="font-size:22px;font-weight:800;color:var(--amber);margin-bottom:6px">Parabéns, Mestre! 🎉</div>
+  <p style="color:var(--gray2);font-size:13px;max-width:380px;margin:0 auto 14px">Explore os Projetos Guiados, Playground e Desafios Diários para continuar.</p>
+  <div style="font-family:'Fira Code',monospace;color:var(--green);font-size:12px">printf("Bons estudos!\n");</div>
+</div>
+</div><!-- end panel-main -->
+
+<!-- PLAYGROUND -->
+<div id="panel-playground" class="panel">
+  <div style="margin-bottom:20px"><div style="font-size:22px;font-weight:800;color:var(--text3);margin-bottom:4px">💻 Playground</div><div style="font-size:13px;color:var(--gray2)">Espaço livre — sem exercício, sem avaliação. Só você e o compilador GCC.</div></div>
+  <div class="pg-wrap">
+    <div class="pg-header"><div class="pg-title">Editor C — GCC real</div><div style="display:flex;gap:7px"><button class="btn-sm" onclick="clearPg()">🗑️ Limpar</button><button class="btn-sm orange" onclick="savePgHistory()">💾 Salvar</button></div></div>
+    <div style="padding:10px 14px;border-bottom:1px solid var(--border)">
+      <div class="stdin-label">Entrada (stdin) — deixe em branco se não usa scanf <span>opcional</span></div>
+      <textarea class="stdin-input" id="pg-stdin" placeholder="Entrada do programa..." rows="2"></textarea>
+    </div>
+    <textarea class="pg-code" id="pg-code" placeholder="#include &lt;stdio.h&gt;&#10;&#10;int main() {&#10;    // Experimente qualquer código C aqui!&#10;    printf(&quot;Hello, Playground!\n&quot;);&#10;    return 0;&#10;}" spellcheck="false"></textarea>
+    <div class="pg-footer">
+      <button class="btn-run" onclick="runPg()" id="pg-run-btn">▶ Compilar e Executar</button>
+      <div class="ex-loading" id="pg-loading" style="margin:0"><div class="spinner"></div><span>Compilando...</span></div>
+    </div>
+    <div class="ex-output" id="pg-output" style="margin:0 14px 14px"><div class="ex-out-header"><span id="pg-out-stat"></span></div><div class="ex-out-body" id="pg-out-body"></div></div>
+  </div>
+  <div style="padding:0">
+    <div class="pg-hist-label">Histórico de sessões salvas</div>
+    <div id="pg-hist-list"><div class="pg-hist-empty">Nenhuma sessão salva. Use 💾 Salvar para guardar seu código.</div></div>
+  </div>
+</div>
+
+<!-- STATS -->
+<div id="panel-stats" class="panel">
+  <div style="margin-bottom:20px"><div style="font-size:22px;font-weight:800;color:var(--text3);margin-bottom:4px">📊 Minhas Estatísticas</div><div style="font-size:13px;color:var(--gray2)">Seu desempenho detalhado na jornada.</div></div>
+  <div class="stats-grid">
+    <div class="stat-card"><div class="stat-card-num" id="st-xp">0</div><div class="stat-card-label">XP Total</div></div>
+    <div class="stat-card"><div class="stat-card-num" id="st-done">0</div><div class="stat-card-label">Exercícios concluídos</div></div>
+    <div class="stat-card"><div class="stat-card-num" id="st-streak">0</div><div class="stat-card-label">Streak atual 🔥</div></div>
+    <div class="stat-card"><div class="stat-card-num" id="st-level">1</div><div class="stat-card-label">Nível atual</div></div>
+    <div class="stat-card"><div class="stat-card-num" id="st-attempts">0</div><div class="stat-card-label">Total de tentativas</div></div>
+    <div class="stat-card"><div class="stat-card-num" id="st-ach">0</div><div class="stat-card-label">Conquistas</div></div>
+  </div>
+  <div style="background:var(--bg2);border:1px solid var(--border2);border-radius:10px;padding:16px;margin-bottom:14px">
+    <div style="font-size:13px;font-weight:700;color:var(--text2);margin-bottom:12px">Progresso por fase</div>
+    <div id="phase-progress-bars"></div>
+  </div>
+  <div style="background:var(--bg2);border:1px solid var(--border2);border-radius:10px;padding:16px;margin-bottom:14px">
+    <div style="font-size:13px;font-weight:700;color:var(--text2);margin-bottom:10px">🎯 Exercícios com mais tentativas</div>
+    <div id="weak-points-list"><div style="font-size:12.5px;color:var(--gray)">Nenhum dado ainda. Complete exercícios para ver estatísticas.</div></div>
+  </div>
+  <div style="background:var(--bg2);border:1px solid var(--border2);border-radius:10px;padding:16px">
+    <div style="font-size:13px;font-weight:700;color:var(--text2);margin-bottom:4px">🏆 Conquistas</div>
+    <div style="font-size:11px;color:var(--gray2);margin-bottom:10px">Desbloqueadas: <span id="ach-unlocked">0</span> / 11</div>
+    <div id="ach-grid" style="display:grid;grid-template-columns:repeat(auto-fill,minmax(190px,1fr));gap:8px"></div>
+  </div>
+</div>
+
+<!-- DAILY CHALLENGE -->
+<div id="panel-daily" class="panel">
+  <div style="margin-bottom:20px"><div style="font-size:22px;font-weight:800;color:var(--text3);margin-bottom:4px">🎯 Desafio do Dia</div><div style="font-size:13px;color:var(--gray2)">Um novo desafio todo dia. Complete para ganhar XP bônus e manter seu streak.</div></div>
+  <div id="daily-content"><div class="ex-loading" style="display:flex"><div class="spinner"></div>Gerando desafio de hoje...</div></div>
+</div>
+
+<!-- REVIEW -->
+<div id="panel-review" class="panel">
+  <div style="margin-bottom:20px"><div style="font-size:22px;font-weight:800;color:var(--text3);margin-bottom:4px">🔁 Modo Revisão</div><div style="font-size:13px;color:var(--gray2)">Revisão espaçada dos conceitos aprendidos. A melhor forma de não esquecer.</div></div>
+  <div id="review-content"></div>
+</div>
+
+<!-- PROJECTS -->
+<div id="panel-projects" class="panel">
+  <div style="margin-bottom:20px"><div style="font-size:22px;font-weight:800;color:var(--text3);margin-bottom:4px">🗂️ Projetos Guiados</div><div style="font-size:13px;color:var(--gray2)">Programas completos e úteis, passo a passo. Saia com algo real funcionando.</div></div>
+
+  <div class="project-card">
+    <div class="project-header"><div class="project-icon">🧮</div><div class="project-title">Calculadora de Médias</div><span class="project-diff diff-easy">Iniciante</span></div>
+    <div class="project-body">
+      <div class="project-desc">Calcule sua média semestral, veja se está aprovado e qual nota precisa na prova final. Você vai usar isso esse semestre inteiro.</div>
+      <div class="project-concepts"><span class="concept-tag">tipos</span><span class="concept-tag">operadores</span><span class="concept-tag">i/o</span><span class="concept-tag">condicionais</span></div>
+      <div class="project-step"><div class="step-num">1</div><div class="step-body">Leia quantas matérias o usuário tem (int n)</div></div>
+      <div class="project-step"><div class="step-num">2</div><div class="step-body">Para cada matéria, leia o nome e as notas P1, P2, P3 (float)</div></div>
+      <div class="project-step"><div class="step-num">3</div><div class="step-body">Calcule a média: <code>(p1 + p2 + p3) / 3.0</code></div></div>
+      <div class="project-step"><div class="step-num">4</div><div class="step-body">Se média &lt; 5: "Reprovado". Se 5 ≤ média &lt; 7: calcule nota de prova final necessária</div></div>
+      <div class="project-step"><div class="step-num">5</div><div class="step-body">Imprima resumo formatado com todas as matérias e situações</div></div>
+      <div class="stdin-wrap" style="margin-top:12px"><div class="stdin-label">Entrada de teste <span>stdin</span></div><textarea class="stdin-input" id="stdin-proj1" placeholder="2&#10;Calculo&#10;7.0 6.5 8.0&#10;Fisica&#10;4.0 5.0 4.5" rows="5"></textarea></div>
+      <textarea class="ex-code-area" id="code-proj1" placeholder="// Projeto 1: Calculadora de Médias&#10;// Implemente seguindo os passos acima!" style="margin-top:8px"></textarea>
+      <div style="display:flex;gap:7px;margin-top:8px"><button class="btn-run" onclick="runProject('proj1')">▶ Compilar e Executar</button></div>
+      <div class="ex-loading" id="load-proj1"><div class="spinner"></div>Compilando...</div>
+      <div class="ex-output" id="out-proj1"><div class="ex-out-header"><span id="out-stat-proj1"></span></div><div class="ex-out-body" id="out-body-proj1"></div></div>
+    </div>
+  </div>
+
+  <div class="project-card">
+    <div class="project-header"><div class="project-icon">🎮</div><div class="project-title">Jogo da Adivinhação</div><span class="project-diff diff-easy">Iniciante</span></div>
+    <div class="project-body">
+      <div class="project-desc">O clássico. O computador pensa em um número e você tenta adivinhar com dicas de "maior" ou "menor".</div>
+      <div class="project-concepts"><span class="concept-tag">condicionais</span><span class="concept-tag">loops</span><span class="concept-tag">i/o</span><span class="concept-tag">rand()</span></div>
+      <div class="project-step"><div class="step-num">1</div><div class="step-body">Use <code>srand(42)</code> e <code>rand() % 100 + 1</code> para gerar número fixo nos testes (em produção use <code>srand(time(NULL))</code>)</div></div>
+      <div class="project-step"><div class="step-num">2</div><div class="step-body">Em loop: leia o palpite do usuário</div></div>
+      <div class="project-step"><div class="step-num">3</div><div class="step-body">Se palpite &lt; número: "Muito baixo!". Se &gt;: "Muito alto!". Se igual: "Acertou em X tentativas!"</div></div>
+      <div class="project-step"><div class="step-num">4</div><div class="step-body">Limite de 7 tentativas. Se esgotar: "Perdeu! Era o número X."</div></div>
+      <div class="stdin-wrap" style="margin-top:12px"><div class="stdin-label">Entrada de teste <span>stdin</span></div><textarea class="stdin-input" id="stdin-proj2" placeholder="50&#10;25&#10;37&#10;43&#10;40&#10;42&#10;41" rows="7"></textarea></div>
+      <textarea class="ex-code-area" id="code-proj2" placeholder="// Projeto 2: Jogo da Adivinhação&#10;#include &lt;stdio.h&gt;&#10;#include &lt;stdlib.h&gt;"></textarea>
+      <div style="display:flex;gap:7px;margin-top:8px"><button class="btn-run" onclick="runProject('proj2')">▶ Compilar e Executar</button></div>
+      <div class="ex-loading" id="load-proj2"><div class="spinner"></div>Compilando...</div>
+      <div class="ex-output" id="out-proj2"><div class="ex-out-header"><span id="out-stat-proj2"></span></div><div class="ex-out-body" id="out-body-proj2"></div></div>
+    </div>
+  </div>
+
+  <div class="project-card">
+    <div class="project-header"><div class="project-icon">🔐</div><div class="project-title">Cifra de César</div><span class="project-diff diff-med">Intermediário</span></div>
+    <div class="project-body">
+      <div class="project-desc">Criptografia clássica de Júlio César. Cada letra da mensagem é deslocada N posições no alfabeto. Fascinante e simples em C.</div>
+      <div class="project-concepts"><span class="concept-tag">strings</span><span class="concept-tag">loops</span><span class="concept-tag">char/ASCII</span><span class="concept-tag">módulo</span></div>
+      <div class="project-step"><div class="step-num">1</div><div class="step-body">Leia a mensagem (char msg[100]) e a chave (int chave)</div></div>
+      <div class="project-step"><div class="step-num">2</div><div class="step-body">Para cada char: se letra minúscula: <code>((c-'a'+chave)%26)+'a'</code></div></div>
+      <div class="project-step"><div class="step-num">3</div><div class="step-body">Trate maiúsculas com 'A' no lugar de 'a'</div></div>
+      <div class="project-step"><div class="step-num">4</div><div class="step-body">Imprima mensagem cifrada. Teste: "hello" chave 3 → "khoor"</div></div>
+      <div class="stdin-wrap" style="margin-top:12px"><div class="stdin-label">Entrada (mensagem e chave) <span>stdin</span></div><textarea class="stdin-input" id="stdin-proj3" placeholder="hello world&#10;3" rows="2"></textarea></div>
+      <textarea class="ex-code-area" id="code-proj3" placeholder="// Projeto 3: Cifra de César&#10;#include &lt;stdio.h&gt;&#10;#include &lt;string.h&gt;"></textarea>
+      <div style="display:flex;gap:7px;margin-top:8px"><button class="btn-run" onclick="runProject('proj3')">▶ Compilar e Executar</button></div>
+      <div class="ex-loading" id="load-proj3"><div class="spinner"></div>Compilando...</div>
+      <div class="ex-output" id="out-proj3"><div class="ex-out-header"><span id="out-stat-proj3"></span></div><div class="ex-out-body" id="out-body-proj3"></div></div>
+    </div>
+  </div>
+
+  <div class="project-card">
+    <div class="project-header"><div class="project-icon">♟️</div><div class="project-title">Jogo da Velha no Terminal</div><span class="project-diff diff-hard">Avançado</span></div>
+    <div class="project-body">
+      <div class="project-desc">O projeto definitivo de iniciante. Dois jogadores, tabuleiro no terminal, detecção de vitória e empate. Exercita tudo da Fase 3.</div>
+      <div class="project-concepts"><span class="concept-tag">matrizes</span><span class="concept-tag">funções</span><span class="concept-tag">loops</span><span class="concept-tag">condicionais</span></div>
+      <div class="project-step"><div class="step-num">1</div><div class="step-body">Crie <code>char board[3][3]</code> inicializado com espaços</div></div>
+      <div class="project-step"><div class="step-num">2</div><div class="step-body">Função <code>printBoard()</code> que imprime o tabuleiro formatado com bordas</div></div>
+      <div class="project-step"><div class="step-num">3</div><div class="step-body">Alternando entre 'X' e 'O', leia linha e coluna do jogador atual</div></div>
+      <div class="project-step"><div class="step-num">4</div><div class="step-body">Função <code>checkWin()</code> que verifica linhas, colunas e diagonais</div></div>
+      <div class="project-step"><div class="step-num">5</div><div class="step-body">Detecte empate (9 jogadas sem vencedor) e declare resultado</div></div>
+      <div class="stdin-wrap" style="margin-top:12px"><div class="stdin-label">Jogadas (linha coluna) <span>stdin</span></div><textarea class="stdin-input" id="stdin-proj4" placeholder="0 0&#10;1 0&#10;0 1&#10;1 1&#10;0 2" rows="5"></textarea></div>
+      <textarea class="ex-code-area" id="code-proj4" placeholder="// Projeto 4: Jogo da Velha&#10;#include &lt;stdio.h&gt;" style="min-height:180px"></textarea>
+      <div style="display:flex;gap:7px;margin-top:8px"><button class="btn-run" onclick="runProject('proj4')">▶ Compilar e Executar</button></div>
+      <div class="ex-loading" id="load-proj4"><div class="spinner"></div>Compilando...</div>
+      <div class="ex-output" id="out-proj4"><div class="ex-out-header"><span id="out-stat-proj4"></span></div><div class="ex-out-body" id="out-body-proj4"></div></div>
+    </div>
+  </div>
+</div>
+
+</main>
+<button id="menu-btn" onclick="document.getElementById('sidebar').classList.toggle('open')">☰</button>
+
+<script>
+// ══ CONSTANTS ══
+const SK='c_journey_v4';
+const LEVELS=[
+  {name:'Curioso',min:0,max:99,desc:'Você deu o primeiro passo!'},
+  {name:'Aprendiz',min:100,max:299,desc:'Os fundamentos estão entrando!'},
+  {name:'Programador',min:300,max:599,desc:'Você já pensa como programador!'},
+  {name:'Debugger',min:600,max:999,desc:'Você encontra bugs no escuro!'},
+  {name:'Hacker',min:1000,max:1499,desc:'Ponteiros e memória dominados!'},
+  {name:'Mestre C',min:1500,max:99999,desc:'Você dominou a linguagem C!'},
+];
+const QUIZZES={
+  pensamento:{correct:'B',exp:'Entender e planejar o algoritmo é sempre o primeiro passo. Código sem planejamento gera bugs.'},
+  setup:{correct:'B',exp:'-Wall ativa avisos comuns, -Wextra ativa extras. Juntos cobrem quase todos os problemas.'},
+  tipos:{correct:'C',exp:'%.2f imprime float/double com exatamente 2 casas decimais.'},
+  operadores:{correct:'B',exp:'AND só é VERDADEIRO quando AMBAS as condições são verdadeiras. Como A é verdadeiro mas B é falso, o resultado é FALSO.'},
+  switch:{correct:'C',exp:'Sem break ocorre "fall-through": execução continua para o próximo case automaticamente.'},
+  strings:{correct:'B',exp:'strcmp(s1,s2) retorna 0 se iguais. Nunca use == para comparar strings em C!'},
+  arquivos:{correct:'C',exp:'"a" (append) abre para escrita no final sem apagar. "w" apagaria todo conteúdo.'},
+};
+const XP_MAP={
+  pensamento:30,setup:30,hello:50,tipos:30,operadores:30,
+  io:60,condicionais:60,loops:70,switch:30,funcoes:80,
+  arrays:80,strings:30,structs:90,ponteiros:100,memoria:100,arquivos:30,
+  boss1:150,boss2:150,boss3:200,boss4:300
+};
+const CODE_IDS=['hello','io','condicionais','loops','funcoes','arrays','structs','ponteiros','memoria','boss1','boss2','boss3','boss4'];
+const QUIZ_IDS=['pensamento','setup','tipos','operadores','switch','strings','arquivos'];
+const ALL_IDS=[...QUIZ_IDS,...CODE_IDS];
+const SECTION_IDS=['pensamento','setup','hello','tipos','operadores','io','condicionais','loops','switch','funcoes','arrays','strings','structs','ponteiros','memoria','arquivos'];
+const BOSS_IDS=['boss1','boss2','boss3','boss4'];
+
+const ACHIEVEMENTS=[
+  {id:'first',icon:'👣',name:'Primeiro Passo',desc:'Completou o primeiro exercício',check:s=>s.ex.length>=1},
+  {id:'hello',icon:'🌍',name:'Olá, Mundo!',desc:'Compilou seu primeiro programa C',check:s=>s.ex.includes('hello')},
+  {id:'phase1',icon:'🔩',name:'Fundamentos Sólidos',desc:'Completou a Fase 1',check:s=>['tipos','operadores','io'].every(e=>s.ex.includes(e))},
+  {id:'boss',icon:'⚔️',name:'Caçador de Bosses',desc:'Derrotou o primeiro Boss',check:s=>BOSS_IDS.some(b=>s.ex.includes(b))},
+  {id:'pointer',icon:'👆',name:'Ponteiro Domado',desc:'Dominou ponteiros',check:s=>s.ex.includes('ponteiros')},
+  {id:'memory',icon:'🧠',name:'Mestre da Memória',desc:'Dominou alocação dinâmica',check:s=>s.ex.includes('memoria')},
+  {id:'half',icon:'🏁',name:'Meio Caminho',desc:'10 exercícios concluídos',check:s=>s.ex.length>=10},
+  {id:'complete',icon:'🏆',name:'Mestre C',desc:'Todos os exercícios concluídos!',check:s=>s.ex.length>=ALL_IDS.length},
+  {id:'streak3',icon:'🔥',name:'Em Chamas',desc:'3 dias seguidos de estudo',check:s=>s.streak>=3},
+  {id:'streak7',icon:'💎',name:'Semana de Código',desc:'7 dias seguidos',check:s=>s.streak>=7},
+  {id:'persist',icon:'💪',name:'Persistente',desc:'Tentou 3+ vezes e passou',check:s=>s.persisted},
+];
+
+const HINTS={
+  hello:'Use #include <stdio.h> no topo, int main() com printf("Olá, Mundo!\\n"); e return 0;',
+  io:'Declare int n; use scanf("%d", &n); e printf("Dobro: %d\\n", n*2);',
+  condicionais:'Use if(n>0) para Positivo, else if(n<0) para Negativo e else para Zero.',
+  loops:'Declare int soma=0; antes do loop. Dentro do for: soma+=i;',
+  funcoes:'int fatorial(int n){int r=1; for(int i=2;i<=n;i++) r*=i; return r;}',
+  arrays:'int maior=arr[0]; antes do loop; dentro: if(arr[i]>maior) maior=arr[i];',
+  structs:'typedef struct{char nome[50];float preco;int qtd;}Produto; depois Produto p1={"Caneta",2.50f,10};',
+  ponteiros:'Dentro de trocar: int temp=*a; *a=*b; *b=temp; — chame com trocar(&x,&y);',
+  memoria:'int *v=(int*)malloc(n*sizeof(int)); use como array normal; depois free(v); v=NULL;',
+  boss1:'float peso,altura,imc; scanf("%f %f",&peso,&altura); imc=peso/(altura*altura); depois if/else para classificar.',
+  boss2:'const int SENHA=1234; for(int t=1;t<=3;t++) — leia tentativa, compare, use break se acertar.',
+  boss3:'void calcularMedia(Aluno *a){a->media=(a->notas[0]+a->notas[1]+a->notas[2])/3.0f;}',
+  boss4:'Contato *lista=(Contato*)malloc(n*sizeof(Contato)); para arquivo: FILE *f=fopen("contatos.txt","w"); fprintf em loop.',
+};
+
+const SOLUTIONS={
+  hello:`#include <stdio.h>  // importa printf
+
+int main() {               // ponto de entrada
+    printf("Olá, Mundo!\\n"); // \\n = nova linha
+    return 0;              // 0 = sucesso
+}`,
+  io:`#include <stdio.h>
+int main() {
+    int n;                    // declara variável
+    scanf("%d", &n);          // & = endereço de n
+    printf("Dobro: %d\\n", n * 2);
+    return 0;
+}`,
+  condicionais:`#include <stdio.h>
+int main() {
+    int n; scanf("%d", &n);
+    if (n > 0) printf("Positivo\\n");
+    else if (n < 0) printf("Negativo\\n");
+    else printf("Zero\\n");
+    return 0;
+}`,
+  loops:`#include <stdio.h>
+int main() {
+    int soma = 0;
+    for (int i = 1; i <= 100; i++) soma += i;
+    printf("Soma: %d\\n", soma); // 5050
+    return 0;
+}`,
+  funcoes:`#include <stdio.h>
+int fatorial(int n) {
+    int r = 1;
+    for (int i = 2; i <= n; i++) r *= i;
+    return r;
+}
+int main() {
+    int n; scanf("%d", &n);
+    printf("%d! = %d\\n", n, fatorial(n));
+    return 0;
+}`,
+  arrays:`#include <stdio.h>
+int main() {
+    int arr[6] = {3,1,4,1,5,9};
+    int maior = arr[0];
+    for (int i=1; i<6; i++)
+        if (arr[i] > maior) maior = arr[i];
+    printf("Maior: %d\\n", maior);
+    return 0;
+}`,
+  structs:`#include <stdio.h>
+#include <string.h>
+typedef struct {
+    char nome[50]; float preco; int qtd;
+} Produto;
+int main() {
+    Produto p1 = {"Caneta", 2.50f, 10};
+    Produto p2 = {"Caderno", 15.90f, 5};
+    printf("%-10s R$%.2f qtd:%d\\n", p1.nome, p1.preco, p1.qtd);
+    printf("%-10s R$%.2f qtd:%d\\n", p2.nome, p2.preco, p2.qtd);
+    return 0;
+}`,
+  ponteiros:`#include <stdio.h>
+void trocar(int *a, int *b) {
+    int temp = *a; *a = *b; *b = temp;
+}
+int main() {
+    int x=10, y=20;
+    printf("Antes: x=%d y=%d\\n", x, y);
+    trocar(&x, &y);
+    printf("Depois: x=%d y=%d\\n", x, y);
+    return 0;
+}`,
+  memoria:`#include <stdio.h>
+#include <stdlib.h>
+int main() {
+    int n; scanf("%d", &n);
+    int *v = (int*)malloc(n * sizeof(int));
+    if (!v) { printf("Sem memória!\\n"); return 1; }
+    for (int i=0; i<n; i++) v[i]=i*i;
+    for (int i=0; i<n; i++) printf("%d ", v[i]);
+    printf("\\n");
+    free(v); v=NULL;
+    return 0;
+}`,
+};
+
+const EX_PROMPTS={
+  hello:'Programa C completo que imprima exatamente "Olá, Mundo!" — deve ter #include <stdio.h>, int main(), printf e return 0.',
+  io:'Ler um inteiro com scanf e imprimir seu dobro. Ex: entrada 7 → "Dobro: 14".',
+  condicionais:'Ler inteiro e imprimir "Positivo", "Negativo" ou "Zero" com if/else if/else.',
+  loops:'Loop for somando inteiros de 1 a 100 e imprimindo o resultado (5050).',
+  funcoes:'Função int fatorial(int n) iterativa. No main, ler n e imprimir n!.',
+  arrays:'Array de pelo menos 5 inteiros, encontrar e imprimir o maior valor com loop.',
+  structs:'typedef struct Produto com nome (char[]), preco (float) e quantidade (int). Criar 2 produtos e imprimir.',
+  ponteiros:'void trocar(int *a, int *b) que troca valores. No main: mostrar antes e depois.',
+  memoria:'Ler n, malloc(n*sizeof(int)), verificar NULL, preencher com quadrados dos índices, imprimir e free().',
+  boss1:'IMC: ler peso e altura (float), calcular imc=peso/(altura*altura), imprimir com 2 decimais e classificar.',
+  boss2:'Senha secreta (const int), 3 tentativas em loop, mensagem de tentativa, "Acesso liberado!" ou "Conta bloqueada!".',
+  boss3:'Struct Aluno (nome, float notas[3], media), função calcularMedia(Aluno*), 3 alunos, tabela e maior média.',
+  boss4:'Struct Contato (nome, telefone), malloc N contatos, ler dados, busca por nome, salvar em arquivo, free().',
+};
+
+// ══ SAVE ══
+function loadSave(){
+  try{const r=localStorage.getItem(SK);if(r)return JSON.parse(r);}catch(e){}
+  return{name:'',xp:0,ex:[],ach:[],fails:{},streak:0,lastVisit:null,persisted:false,pgHistory:[],notes:{},dailyDate:'',dailyDone:false,totalAttempts:0};
+}
+function save(){try{localStorage.setItem(SK,JSON.stringify(S));}catch(e){}}
+let S=loadSave();
+
+// ══ STREAK ══
+function checkStreak(){
+  const today=new Date().toDateString();
+  if(S.lastVisit!==today){
+    if(S.lastVisit){const d=(new Date(today)-new Date(S.lastVisit))/86400000;S.streak=d<=1?S.streak+1:1;}
+    else S.streak=1;
+    S.lastVisit=today;
+    save();
+  }
+}
+
+// ══ LEVELS ══
+function lvIdx(xp){for(let i=LEVELS.length-1;i>=0;i--)if(xp>=LEVELS[i].min)return i;return 0;}
+
+// ══ XP & ACHIEVEMENTS ══
+function awardXP(id,assisted=false){
+  if(S.ex.includes(id))return 0;
+  S.ex.push(id);
+  const base=XP_MAP[id]||30;
+  const gained=assisted?Math.floor(base*.5):base;
+  const oldLv=lvIdx(S.xp);
+  S.xp+=gained;
+  const newLv=lvIdx(S.xp);
+  save();
+  updateUI();
+  checkAch();
+  if(newLv>oldLv)showLevelUp(newLv);
+  return gained;
+}
+function checkAch(){
+  ACHIEVEMENTS.forEach(a=>{
+    if(!S.ach.includes(a.id)&&a.check(S)){
+      S.ach.push(a.id);save();
+      showToast(a);
+    }
+  });
+}
+
+// ══ PROGRESSIVE HELP ══
+function regFail(id){
+  if(!S.fails[id])S.fails[id]=0;
+  S.fails[id]++;
+  S.totalAttempts++;
+  save();
+  updateHelp(id);
+}
+function updateHelp(id){
+  const c=S.fails[id]||0;
+  const att=document.getElementById('att-'+id);
+  const aiBtn=document.getElementById('btn-ai-'+id);
+  const solBtn=document.getElementById('btn-sol-'+id);
+  const hintEl=document.getElementById('hint-'+id);
+  if(att){att.textContent=c===0?'':`${c} tentativa${c>1?'s':''}`;att.className='ex-attempts'+(c>=3?' w2':c>=2?' w1':'');}
+  if(c>=1&&hintEl){if(HINTS[id]&&!hintEl.textContent.trim())hintEl.innerHTML='💡 '+HINTS[id];hintEl.style.display='block';}
+  if(c>=2&&aiBtn)aiBtn.style.display='inline-flex'||'';
+  if(c>=3&&solBtn)solBtn.style.display='inline-flex'||'';
+}
+function toggleHint(id){const h=document.getElementById('hint-'+id);if(!h)return;if(HINTS[id]&&!h.textContent.trim())h.innerHTML='💡 '+HINTS[id];h.style.display=h.style.display==='block'?'none':'block';}
+
+async function getAiHelp(id){
+  const code=(document.getElementById('code-'+id)||{}).value||'';
+  if(!code.trim()){alert('Escreva seu código primeiro!');return;}
+  const aiaEl=document.getElementById('aia-'+id);
+  const bodyEl=document.getElementById('aia-body-'+id);
+  const btn=document.getElementById('btn-ai-'+id);
+  if(!aiaEl||!bodyEl)return;
+  btn.disabled=true;btn.textContent='Analisando...';
+  bodyEl.textContent='Aguarde...';aiaEl.style.display='block';
+  try{
+    const res=await fetch('/api/gemini',{method:'POST',headers:{'Content-Type':'application/json'},
+      body:JSON.stringify({
+        system:'Você é professor de C. Aponte o que está CORRETO primeiro, depois identifique o erro específico. NÃO dê a solução completa. Máximo 3 parágrafos curtos em português.',
+        prompt:'EXERCÍCIO: '+(EX_PROMPTS[id]||'exercício de C')+'\n\nCÓDIGO DO ALUNO:\n'+code
+      })
+    });
+    const data=await res.json();
+    if(data.error)throw new Error(data.error);
+    bodyEl.textContent=data.text;
+  }catch(e){bodyEl.textContent='Erro ao conectar à IA: '+e.message;}
+  btn.disabled=false;btn.textContent='🤖 Analisar erro';
+}
+
+function showSolution(id){
+  const sol=SOLUTIONS[id];if(!sol)return;
+  const box=document.getElementById('sol-'+id);
+  const body=document.getElementById('sol-body-'+id);
+  if(!box||!body)return;
+  if(box.style.display==='block'){box.style.display='none';return;}
+  body.textContent=sol;box.style.display='block';
+}
+
+// ══ PISTON COMPILER ══
+async function compilePiston(code,stdin){
+  const res=await fetch('https://emkc.org/api/v2/piston/execute',{
+    method:'POST',headers:{'Content-Type':'application/json'},
+    body:JSON.stringify({language:'c',version:'*',files:[{name:'main.c',content:code}],stdin:stdin||''})
+  });
+  if(!res.ok)throw new Error('Erro Piston: '+res.status);
+  const d=await res.json();
+  const compile=d.compile||{};const run=d.run||{};
+  if((compile.code!==undefined&&compile.code!==0)&&(compile.stderr||compile.output))
+    return{ok:false,type:'compile',output:compile.stderr||compile.output};
+  if(run.code!==0&&run.signal)
+    return{ok:false,type:'runtime',output:run.stderr||run.output||'Erro em execução'};
+  return{ok:true,output:run.stdout||run.output||''};
+}
+
+async function evalAI(id,code,stdout){
+  try{
+    const res=await fetch('/api/gemini',{method:'POST',headers:{'Content-Type':'application/json'},
+      body:JSON.stringify({
+        system:'Você é avaliador de código C. Responda SOMENTE em JSON puro sem markdown: {"passed":true,"feedback":"texto"} ou {"passed":false,"feedback":"texto"}',
+        prompt:'EXERCÍCIO: '+(EX_PROMPTS[id]||'')+'\nSAÍDA DO PROGRAMA: '+(stdout||'(sem output)')+'\n\nO aluno resolveu corretamente o que foi pedido?',
+        jsonMode:true
+      })
+    });
+    const data=await res.json();
+    if(data.error)throw new Error(data.error);
+    const clean=data.text.replace(/```json|```/g,'').trim();
+    return JSON.parse(clean);
+  }catch(e){return{passed:true,feedback:'Compilou e executou! (avaliação IA indisponível)'};}
+}
+
+async function explainError(id,code,err){
+  const el=document.getElementById('err-explain-'+id);
+  if(!el)return;
+  try{
+    const res=await fetch('/api/gemini',{method:'POST',headers:{'Content-Type':'application/json'},
+      body:JSON.stringify({
+        system:'Você é professor de C. Explique em 2-3 frases simples em português: o que causou este erro do GCC, onde está no código e como corrigir. Não dê a solução completa.',
+        prompt:'Erro do GCC:\n'+err
+      })
+    });
+    const data=await res.json();
+    if(data.error)throw new Error(data.error);
+    el.innerHTML='<div class="afl">🤖 IA explica o erro</div>'+escH(data.text);
+  }catch(e){
+    el.innerHTML='<div class="afl">🤖 IA explica o erro</div>Verifique a mensagem do GCC acima.';
+  }
+}
+
+async function runEx(id){
+  if(S.ex.includes(id))return;
+  const code=(document.getElementById('code-'+id)||{}).value||'';
+  if(!code.trim()){alert('Escreva seu código antes de compilar!');return;}
+  const stdin=(document.getElementById('stdin-'+id)||{}).value||'';
+  const btnEl=document.querySelector(`#ex-${id} .btn-run`);
+  const loadEl=document.getElementById('load-'+id);
+  const loadTxt=document.getElementById('load-txt-'+id);
+  const outEl=document.getElementById('out-'+id);
+  const statEl=document.getElementById('out-stat-'+id);
+  const bodyEl=document.getElementById('out-body-'+id);
+  if(btnEl)btnEl.disabled=true;
+  if(loadEl)loadEl.style.display='flex';
+  if(outEl)outEl.style.display='none';
+  if(loadTxt)loadTxt.textContent='Compilando com GCC...';
+  try{
+    const result=await compilePiston(code,stdin);
+    if(!result.ok){
+      if(loadEl)loadEl.style.display='none';
+      if(outEl)outEl.style.display='block';
+      if(result.type==='compile'){
+        outEl.className='ex-output cerr';
+        statEl.textContent='❌ Erro de compilação (GCC)';
+        bodyEl.innerHTML=`<b>Erro do GCC:</b>\n${escH(result.output)}\n<div class="ai-fb" id="err-explain-${id}"><div class="afl">🤖 IA explica o erro</div>Carregando...</div>`;
+        explainError(id,code,result.output);
+      }else{
+        outEl.className='ex-output fail';
+        statEl.textContent='💥 Erro em execução';
+        bodyEl.textContent=result.output;
+      }
+      regFail(id);
+      if(btnEl)btnEl.disabled=false;
+      return;
+    }
+    if(loadTxt)loadTxt.textContent='Avaliando com IA...';
+    const eval_=await evalAI(id,code,result.output);
+    if(loadEl)loadEl.style.display='none';
+    if(outEl)outEl.style.display='block';
+    if(eval_.passed){
+      outEl.className='ex-output pass';
+      statEl.textContent='✅ Compilou e passou!';
+      const isAssisted=(S.fails[id]||0)>=3&&document.getElementById('sol-'+id)?.style.display==='block';
+      bodyEl.innerHTML=`<b>Saída:</b>\n${escH(result.output||'(sem output)')}\n<div class="ai-fb"><div class="afl">🤖 Avaliação da IA</div>${escH(eval_.feedback)}</div>`;
+      const gained=awardXP(id,isAssisted);
+      const doneEl=document.getElementById('done-'+id);
+      if(doneEl){doneEl.style.display='flex';doneEl.textContent=isAssisted?`✅ Correto! +${gained} XP (50% por ver solução)`:`✅ Correto! +${gained} XP ganhos`;}
+      if((S.fails[id]||0)>=3){S.persisted=true;save();checkAch();}
+    }else{
+      outEl.className='ex-output fail';
+      statEl.textContent='❌ Compilou, mas não resolveu o exercício';
+      bodyEl.innerHTML=`<b>Saída:</b>\n${escH(result.output||'(sem output)')}\n<div class="ai-fb"><div class="afl">🤖 Avaliação da IA</div>${escH(eval_.feedback)}</div>`;
+      regFail(id);
+      if(btnEl)btnEl.disabled=false;
+    }
+  }catch(e){
+    if(loadEl)loadEl.style.display='none';
+    if(outEl)outEl.style.display='block';
+    outEl.className='ex-output fail';
+    statEl.textContent='⚠️ Erro de conexão';
+    bodyEl.textContent='Não foi possível conectar ao compilador. Verifique sua internet.\n\n'+e.message;
+    if(btnEl)btnEl.disabled=false;
+  }
+}
+
+async function runProject(id){
+  const code=(document.getElementById('code-'+id)||{}).value||'';
+  if(!code.trim()){alert('Escreva o código do projeto!');return;}
+  const stdin=(document.getElementById('stdin-'+id)||{}).value||'';
+  const loadEl=document.getElementById('load-'+id);
+  const outEl=document.getElementById('out-'+id);
+  const statEl=document.getElementById('out-stat-'+id);
+  const bodyEl=document.getElementById('out-body-'+id);
+  if(loadEl)loadEl.style.display='flex';
+  if(outEl)outEl.style.display='none';
+  try{
+    const r=await compilePiston(code,stdin);
+    if(loadEl)loadEl.style.display='none';
+    if(outEl)outEl.style.display='block';
+    if(!r.ok){
+      outEl.className=r.type==='compile'?'ex-output cerr':'ex-output fail';
+      statEl.textContent=r.type==='compile'?'❌ Erro de compilação':'💥 Erro em execução';
+      bodyEl.innerHTML=(r.type==='compile'?'<b>GCC:</b>\n':'')+escH(r.output);
+    }else{
+      outEl.className='ex-output pass';
+      statEl.textContent='✅ Compilou e executou!';
+      bodyEl.textContent=r.output||'(sem output)';
+    }
+  }catch(e){
+    if(loadEl)loadEl.style.display='none';
+    if(outEl)outEl.style.display='block';
+    outEl.className='ex-output fail';
+    statEl.textContent='⚠️ Erro de conexão';
+    bodyEl.textContent=e.message;
+  }
+}
+
+// ══ PLAYGROUND ══
+async function runPg(){
+  const code=document.getElementById('pg-code').value||'';
+  const stdin=document.getElementById('pg-stdin').value||'';
+  if(!code.trim()){alert('Escreva algum código!');return;}
+  const btnEl=document.getElementById('pg-run-btn');
+  const loadEl=document.getElementById('pg-loading');
+  const outEl=document.getElementById('pg-output');
+  const statEl=document.getElementById('pg-out-stat');
+  const bodyEl=document.getElementById('pg-out-body');
+  btnEl.disabled=true;loadEl.style.display='flex';outEl.style.display='none';
+  try{
+    const r=await compilePiston(code,stdin);
+    loadEl.style.display='none';outEl.style.display='block';
+    if(!r.ok){
+      outEl.className=r.type==='compile'?'ex-output cerr':'ex-output fail';
+      statEl.textContent=r.type==='compile'?'❌ Erro de compilação':'💥 Erro em execução';
+      bodyEl.innerHTML=(r.type==='compile'?'<b>GCC:</b>\n':'')+escH(r.output);
+    }else{
+      outEl.className='ex-output pass';
+      statEl.textContent='✅ Compilou e executou!';
+      bodyEl.textContent=r.output||'(sem output)';
+    }
+  }catch(e){
+    loadEl.style.display='none';outEl.style.display='block';
+    outEl.className='ex-output fail';statEl.textContent='⚠️ Erro de conexão';bodyEl.textContent=e.message;
+  }
+  btnEl.disabled=false;
+}
+function clearPg(){if(confirm('Limpar o editor?')){document.getElementById('pg-code').value='';document.getElementById('pg-stdin').value='';document.getElementById('pg-output').style.display='none';}}
+function savePgHistory(){
+  const code=document.getElementById('pg-code').value;
+  if(!code.trim())return;
+  if(!S.pgHistory)S.pgHistory=[];
+  const preview=code.split('\n').find(l=>l.trim()&&!l.startsWith('//'))||code.substring(0,60);
+  S.pgHistory.unshift({code,stdin:document.getElementById('pg-stdin').value,time:new Date().toLocaleString('pt-BR'),preview:preview.trim()});
+  S.pgHistory=S.pgHistory.slice(0,5);
+  save();renderPgHistory();
+  showToast({icon:'💾',name:'Salvo!',desc:'Código guardado no histórico'});
+}
+function renderPgHistory(){
+  const el=document.getElementById('pg-hist-list');
+  if(!el)return;
+  if(!S.pgHistory||!S.pgHistory.length){el.innerHTML='<div class="pg-hist-empty">Nenhuma sessão salva. Use 💾 Salvar.</div>';return;}
+  el.innerHTML=S.pgHistory.map((h,i)=>`<div class="pg-hist-item" onclick="loadPgHistory(${i})" title="${escH(h.preview)}">${escH(h.time)} — ${escH(h.preview.substring(0,50))}</div>`).join('');
+}
+function loadPgHistory(i){
+  const h=S.pgHistory[i];if(!h)return;
+  document.getElementById('pg-code').value=h.code;
+  document.getElementById('pg-stdin').value=h.stdin||'';
+}
+
+// ══ QUIZ ══
+function answerQuiz(id,ans,btn){
+  if(S.ex.includes(id))return;
+  const q=QUIZZES[id];
+  btn.closest('.quiz-options').querySelectorAll('.quiz-opt').forEach(o=>o.disabled=true);
+  const fb=document.getElementById('qf-'+id);
+  if(ans===q.correct){
+    btn.classList.add('correct');
+    if(fb){fb.className='quiz-feedback pass';fb.textContent='✅ Correto! '+q.exp;fb.style.display='block';}
+    awardXP(id);
+  }else{
+    btn.classList.add('wrong');
+    btn.closest('.quiz-options').querySelectorAll('.quiz-opt').forEach(o=>{if(o.textContent.startsWith(q.correct))o.classList.add('correct');});
+    if(fb){fb.className='quiz-feedback fail';fb.textContent='❌ Incorreto. '+q.exp;fb.style.display='block';}
+  }
+}
+
+// ══ NOTES ══
+function initNotes(){
+  document.querySelectorAll('.notes-area').forEach(el=>{
+    const id=el.id.replace('notes-','');
+    if(S.notes&&S.notes[id])el.value=S.notes[id];
+    let timer;
+    el.addEventListener('input',()=>{
+      clearTimeout(timer);
+      timer=setTimeout(()=>{
+        if(!S.notes)S.notes={};
+        S.notes[id]=el.value;save();
+        const ind=document.getElementById('ns-'+id);
+        if(ind){ind.style.opacity=1;setTimeout(()=>ind.style.opacity=0,1500);}
+      },600);
+    });
+  });
+}
+
+// ══ STATS ══
+function renderStats(){
+  const lv=lvIdx(S.xp);
+  const q=(id,v)=>{const el=document.getElementById(id);if(el)el.textContent=v;};
+  q('st-xp',S.xp);q('st-done',S.ex.length);q('st-streak',S.streak);
+  q('st-level','LV'+(lv+1));q('st-attempts',S.totalAttempts||0);q('st-ach',S.ach.length);
+  q('ach-unlocked',S.ach.length);
+  // Phase bars
+  const phases=[
+    {name:'Fase 0',ids:['pensamento','setup','hello']},
+    {name:'Fase 1',ids:['tipos','operadores','io','boss1']},
+    {name:'Fase 2',ids:['condicionais','loops','switch','boss2']},
+    {name:'Fase 3',ids:['funcoes','arrays','strings','structs','boss3']},
+    {name:'Fase 4',ids:['ponteiros','memoria','arquivos','boss4']},
+  ];
+  const pbEl=document.getElementById('phase-progress-bars');
+  if(pbEl){
+    pbEl.innerHTML=phases.map(ph=>{
+      const done=ph.ids.filter(id=>S.ex.includes(id)).length;
+      const pct=Math.round((done/ph.ids.length)*100);
+      const colors=['#4ec994','#61afef','#e8a04a','#c678dd','#e06c75'];
+      const ci=phases.indexOf(ph);
+      return `<div class="stat-bar-wrap"><div class="stat-bar-label"><span>${ph.name}</span><span>${done}/${ph.ids.length}</span></div><div class="stat-bar"><div class="stat-bar-fill" style="width:${pct}%;background:${colors[ci]}"></div></div></div>`;
+    }).join('');
+  }
+  // Weak points
+  const wpEl=document.getElementById('weak-points-list');
+  if(wpEl){
+    const entries=Object.entries(S.fails||{}).filter(([,v])=>v>1).sort((a,b)=>b[1]-a[1]).slice(0,5);
+    if(!entries.length){wpEl.innerHTML='<div style="font-size:12.5px;color:var(--gray)">Nenhum ponto fraco identificado ainda.</div>';}
+    else{wpEl.innerHTML=entries.map(([id,c])=>`<div class="weak-item"><span class="weak-name">${id}</span><span class="weak-count">${c} tentativa${c>1?'s':''}</span></div>`).join('');}
+  }
+  // Achievements
+  const achEl=document.getElementById('ach-grid');
+  if(achEl){
+    achEl.innerHTML=ACHIEVEMENTS.map(a=>{
+      const unlocked=S.ach.includes(a.id);
+      return `<div class="ach-item ${unlocked?'unlocked':'locked'}"><span class="ach-icon">${a.icon}</span><div><div class="ach-name">${a.name}</div><div class="ach-desc">${a.desc}</div></div></div>`;
+    }).join('');
+  }
+}
+
+// ══ DAILY CHALLENGE ══
+const DAILY_CHALLENGES=[
+  {title:'Calculadora de Temperatura',desc:'Escreva um programa que leia uma temperatura em Celsius e converta para Fahrenheit. Fórmula: F = C * 9/5 + 32',xp:40,stdin:'25',concepts:'tipos, operadores, I/O'},
+  {title:'Número Par ou Ímpar',desc:'Leia um inteiro e imprima se é "Par" ou "Ímpar" usando o operador módulo (%).',xp:35,stdin:'7',concepts:'condicionais, módulo'},
+  {title:'Tabuada',desc:'Leia um número n e imprima a tabuada completa de n (de 1 a 10) no formato "n x i = resultado".',xp:45,stdin:'7',concepts:'loops, I/O'},
+  {title:'Soma de Dígitos',desc:'Leia um número inteiro positivo e calcule a soma de seus dígitos. Ex: 123 → 1+2+3 = 6',xp:50,stdin:'123',concepts:'loops, módulo, divisão'},
+  {title:'Maior de Três',desc:'Leia três inteiros e imprima qual é o maior deles.',xp:40,stdin:'5\n12\n8',concepts:'condicionais, if/else'},
+  {title:'Triângulo de Asteriscos',desc:'Leia um número n e imprima um triângulo de asteriscos com n linhas.',xp:45,stdin:'5',concepts:'loops aninhados'},
+  {title:'Verificador de Primo',desc:'Leia um número e diga se é primo ou não. Lembre: primo é divisível só por 1 e por ele mesmo.',xp:60,stdin:'17',concepts:'loops, condicionais, módulo'},
+];
+function getDailyChallenge(){
+  const dayOfYear=Math.floor((new Date()-new Date(new Date().getFullYear(),0,0))/86400000);
+  return DAILY_CHALLENGES[dayOfYear%DAILY_CHALLENGES.length];
+}
+function renderDaily(){
+  const el=document.getElementById('daily-content');if(!el)return;
+  const today=new Date().toDateString();
+  const ch=getDailyChallenge();
+  const done=S.dailyDate===today&&S.dailyDone;
+  el.innerHTML=`
+    <div class="daily-card">
+      <div class="daily-header"><div class="daily-icon">🎯</div><div><div class="daily-tag">Desafio de hoje</div><div class="daily-name">${ch.title}</div></div><span class="daily-xp">+${ch.xp} XP</span></div>
+      <div class="daily-body">
+        <div style="background:var(--bg3);border:1px solid var(--border2);border-radius:7px;padding:9px 13px;margin-bottom:12px;font-size:12px;color:var(--gray2)">🔥 Streak atual: <strong style="color:var(--amber)">${S.streak} dias</strong> | Conceitos: <em>${ch.concepts}</em></div>
+        <div class="ex-desc" style="margin-bottom:12px">${ch.desc}</div>
+        <div class="stdin-wrap"><div class="stdin-label">Entrada de teste <span>stdin</span></div><textarea class="stdin-input" id="daily-stdin" rows="2">${ch.stdin}</textarea></div>
+        <textarea class="ex-code-area" id="daily-code" placeholder="#include &lt;stdio.h&gt;&#10;&#10;int main() {&#10;    // Resolva o desafio de hoje!&#10;    return 0;&#10;}" ${done?'disabled':''}></textarea>
+        <div style="display:flex;gap:7px;margin-top:8px">
+          ${done?'<div style="background:rgba(78,201,148,.1);border:1px solid rgba(78,201,148,.2);border-radius:7px;padding:9px 13px;color:var(--green2);font-size:13px;font-weight:600">✅ Desafio de hoje concluído! Volte amanhã.</div>'
+            :'<button class="btn-run" onclick="runDaily()">▶ Compilar e Enviar</button>'}
+        </div>
+        <div class="ex-loading" id="daily-loading"><div class="spinner"></div>Compilando...</div>
+        <div class="ex-output" id="daily-out"><div class="ex-out-header"><span id="daily-stat"></span></div><div class="ex-out-body" id="daily-body"></div></div>
+      </div>
+    </div>`;
+}
+async function runDaily(){
+  const code=document.getElementById('daily-code')?.value||'';
+  const stdin=document.getElementById('daily-stdin')?.value||'';
+  if(!code.trim()){alert('Escreva o código!');return;}
+  const loadEl=document.getElementById('daily-loading');
+  const outEl=document.getElementById('daily-out');
+  const statEl=document.getElementById('daily-stat');
+  const bodyEl=document.getElementById('daily-body');
+  if(loadEl)loadEl.style.display='flex';
+  if(outEl)outEl.style.display='none';
+  try{
+    const r=await compilePiston(code,stdin);
+    if(loadEl)loadEl.style.display='none';
+    if(outEl)outEl.style.display='block';
+    if(!r.ok){
+      outEl.className=r.type==='compile'?'ex-output cerr':'ex-output fail';
+      statEl.textContent=r.type==='compile'?'❌ Erro de compilação':'💥 Erro em execução';
+      bodyEl.innerHTML=(r.type==='compile'?'<b>GCC:</b>\n':'')+escH(r.output);
+    }else{
+      outEl.className='ex-output pass';
+      statEl.textContent='✅ Compilou! Desafio concluído!';
+      bodyEl.textContent=r.output||'(sem output)';
+      const ch=getDailyChallenge();
+      const oldLv=lvIdx(S.xp);
+      S.xp+=ch.xp;S.dailyDate=new Date().toDateString();S.dailyDone=true;
+      const newLv=lvIdx(S.xp);save();updateUI();checkAch();
+      if(newLv>oldLv)showLevelUp(newLv);
+      showToast({icon:'🎯',name:'Desafio Concluído!',desc:`+${ch.xp} XP ganhos!`});
+      setTimeout(renderDaily,2000);
+    }
+  }catch(e){
+    if(loadEl)loadEl.style.display='none';
+    if(outEl)outEl.style.display='block';
+    outEl.className='ex-output fail';statEl.textContent='⚠️ Erro';bodyEl.textContent=e.message;
+  }
+}
+
+// ══ REVIEW ══
+const REVIEW_QUESTIONS=[
+  {section:'Tipos',q:'Qual tipo usar para armazenar 3.14 com alta precisão?',opts:['A) int','B) float','C) double','D) char'],correct:'C',exp:'double tem ~15 casas decimais vs ~6 do float.'},
+  {section:'Tabela Verdade',q:'VERDADEIRO OR FALSO = ?',opts:['A) FALSO','B) VERDADEIRO','C) Depende','D) Erro'],correct:'B',exp:'OR é verdadeiro quando pelo menos um dos operandos é verdadeiro.'},
+  {section:'Loops',q:'Qual loop garante pelo menos uma execução?',opts:['A) for','B) while','C) do-while','D) Todos'],correct:'C',exp:'do-while executa o corpo antes de checar a condição.'},
+  {section:'Arrays',q:'Em C, o primeiro índice de um array é:',opts:['A) 1','B) 0','C) -1','D) Depende'],correct:'B',exp:'Em C, todos os arrays começam no índice 0.'},
+  {section:'Ponteiros',q:'O que faz o operador & em &x?',opts:['A) Valor de x','B) Endereço de x','C) Tamanho de x','D) Tipo de x'],correct:'B',exp:'& retorna o endereço de memória da variável.'},
+  {section:'Strings',q:'Como comparar duas strings corretamente em C?',opts:['A) s1 == s2','B) strcompare(s1,s2)','C) strcmp(s1,s2)==0','D) s1.equals(s2)'],correct:'C',exp:'strcmp retorna 0 quando as strings são iguais.'},
+  {section:'Memória',q:'O que acontece se você esquecer free() após malloc()?',opts:['A) Erro de compilação','B) Crash imediato','C) Memory leak','D) Nada'],correct:'C',exp:'Memory leak: a memória alocada nunca é liberada, acumulando até o programa terminar.'},
+  {section:'I/O',q:'No scanf, por que usar & antes da variável?',opts:['A) É obrigatório por sintaxe','B) Para passar o endereço onde guardar o valor','C) Para converter o tipo','D) Não é necessário'],correct:'B',exp:'scanf precisa do endereço (&) para saber onde gravar o valor lido.'},
+  {section:'Funções',q:'O que é o protótipo de uma função em C?',opts:['A) A implementação completa','B) A declaração antes do main com assinatura','C) Um comentário descritivo','D) O nome da função'],correct:'B',exp:'O protótipo declara o tipo de retorno e parâmetros antes do main, permitindo uso antes da implementação.'},
+  {section:'Condicionais',q:'O operador ternário "a > 0 ? 1 : -1" retorna o que quando a=5?',opts:['A) -1','B) 0','C) 1','D) 5'],correct:'C',exp:'a>0 é verdadeiro (5>0), então retorna o valor antes dos dois pontos: 1.'},
+];
+let reviewIdx=0;let reviewScore=0;
+function renderReview(){
+  const el=document.getElementById('review-content');if(!el)return;
+  const available=REVIEW_QUESTIONS.filter(q=>{
+    const secMap={'Tipos':'tipos','Tabela Verdade':'operadores','Loops':'loops','Arrays':'arrays','Ponteiros':'ponteiros','Strings':'strings','Memória':'memoria','I/O':'io','Funções':'funcoes','Condicionais':'condicionais'};
+    return S.ex.includes(secMap[q.section]||'');
+  });
+  if(!available.length){
+    el.innerHTML='<div style="text-align:center;padding:40px;color:var(--gray2);font-size:13.5px">Complete pelo menos algumas seções para desbloquear questões de revisão.</div>';
+    return;
+  }
+  if(reviewIdx>=available.length){
+    el.innerHTML=`<div style="text-align:center;padding:40px"><div style="font-size:32px;margin-bottom:12px">🎯</div><div style="font-size:20px;font-weight:800;color:var(--amber);margin-bottom:6px">${reviewScore}/${available.length} corretos</div><div style="font-size:13.5px;color:var(--gray2);margin-bottom:20px">${reviewScore===available.length?'Perfeito! Você domina esses conceitos.':'Revise os tópicos onde errou e tente novamente.'}</div><button class="btn-primary" onclick="reviewIdx=0;reviewScore=0;renderReview()">🔁 Recomeçar revisão</button></div>`;
+    return;
+  }
+  const q=available[reviewIdx];
+  el.innerHTML=`<div style="font-size:12px;color:var(--gray2);margin-bottom:10px">Questão ${reviewIdx+1} de ${available.length} | Acertos: ${reviewScore}</div>
+  <div class="review-card">
+    <div class="review-header"><span class="review-tag">Revisão: ${q.section}</span></div>
+    <div class="review-body">
+      <div class="review-q">${q.q}</div>
+      <div class="review-opts">${q.opts.map(o=>`<button class="review-opt" onclick="answerReview(this,'${o[0]}','${q.correct}','${escH(q.exp)}')">${o}</button>`).join('')}</div>
+      <div class="quiz-feedback" id="review-fb"></div>
+    </div>
+  </div>`;
+}
+function answerReview(btn,ans,correct,exp){
+  btn.closest('.review-opts').querySelectorAll('.review-opt').forEach(o=>o.disabled=true);
+  const fb=document.getElementById('review-fb');
+  if(ans===correct){
+    btn.classList.add('correct');reviewScore++;
+    if(fb){fb.className='quiz-feedback pass';fb.textContent='✅ Correto! '+exp;fb.style.display='block';}
+  }else{
+    btn.classList.add('wrong');
+    btn.closest('.review-opts').querySelectorAll('.review-opt').forEach(o=>{if(o.textContent.startsWith(correct))o.classList.add('correct');});
+    if(fb){fb.className='quiz-feedback fail';fb.textContent='❌ '+exp;fb.style.display='block';}
+  }
+  setTimeout(()=>{reviewIdx++;renderReview();},2000);
+}
+
+// ══ UI UPDATE ══
+function updateUI(){
+  const lv=lvIdx(S.xp);const lvl=LEVELS[lv];const next=LEVELS[lv+1];
+  const pct=next?Math.round(((S.xp-lvl.min)/(next.min-lvl.min))*100):100;
+  const done=S.ex.length;const total=ALL_IDS.length;
+  const secDone=SECTION_IDS.filter(id=>S.ex.includes(id)).length;
+  const totalPct=Math.round((done/total)*100);
+  const qs=(id,v)=>{const el=document.getElementById(id);if(el)el.textContent=v;};
+  qs('tb-lv-num','LV'+(lv+1));qs('tb-lv-name',lvl.name);
+  document.getElementById('tb-xp-fill').style.width=pct+'%';
+  qs('tb-xp-label',S.xp+(next?' / '+next.min+' XP':' XP — MAX'));
+  qs('tb-streak','🔥 '+S.streak);qs('tb-pct',totalPct+'%');qs('tb-user',S.name||'—');
+  qs('nav-p-label',totalPct+'% concluído');document.getElementById('nav-p-fill').style.width=totalPct+'%';
+  qs('ds-xp',S.xp);qs('ds-sec',secDone+'/16');qs('ds-ex',done+'/'+total);qs('ds-streak',S.streak+'🔥');
+  const greeting=document.getElementById('dash-greeting');
+  if(greeting&&S.name)greeting.textContent=`Olá, ${S.name}! Sua Jornada em C`;
+  ALL_IDS.forEach(id=>{
+    const lnk=document.getElementById('nav-'+id);
+    if(lnk&&S.ex.includes(id))lnk.classList.add('done');
+    const badge=document.getElementById('done-'+id);
+    if(badge&&S.ex.includes(id))badge.style.display='flex';
+  });
+}
+
+// ══ PANEL NAVIGATION ══
+function showPanel(name){
+  document.querySelectorAll('.panel').forEach(p=>p.classList.remove('active'));
+  const el=document.getElementById('panel-'+name);
+  if(el)el.classList.add('active');
+  if(name==='stats')renderStats();
+  if(name==='daily')renderDaily();
+  if(name==='review')renderReview();
+  if(name==='playground')renderPgHistory();
+  window.scrollTo(0,0);
+  document.getElementById('sidebar')?.classList.remove('open');
+}
+function navTo(id){
+  showPanel('main');
+  setTimeout(()=>{const el=document.getElementById(id);if(el)el.scrollIntoView({behavior:'smooth',block:'start'});},80);
+  return false;
+}
+
+// ══ MODALS ══
+function openModal(id){document.getElementById(id)?.classList.add('show');}
+function closeModal(id){document.getElementById(id)?.classList.remove('show');}
+function confirmReset(){if(confirm('Resetar TODO o progresso? XP, exercícios, conquistas e streak serão perdidos.')){const n=S.name;S={name:n,xp:0,ex:[],ach:[],fails:{},streak:0,lastVisit:new Date().toDateString(),persisted:false,pgHistory:[],notes:{},dailyDate:'',dailyDone:false,totalAttempts:0};save();location.reload();}}
+
+// ══ TOAST ══
+function showToast(a){
+  const c=document.getElementById('toast-container');
+  const el=document.createElement('div');el.className='toast';
+  el.innerHTML=`<span class="toast-icon">${a.icon}</span><div><div class="toast-label">${a.name&&a.desc?'Conquista desbloqueada!':''}</div><div class="toast-name">${a.name}</div><div class="toast-desc">${a.desc||''}</div></div>`;
+  c.appendChild(el);
+  setTimeout(()=>{el.style.animation='toastOut .4s ease forwards';setTimeout(()=>el.remove(),400);},3500);
+}
+function showLevelUp(lv){
+  const l=LEVELS[lv];
+  document.getElementById('lu-name').textContent=l.name;
+  document.getElementById('lu-desc').textContent=l.desc;
+  openModal('levelup-modal');
+}
+
+// ══ ONBOARDING ══
+function startJourney(){
+  const name=(document.getElementById('ob-name')||{}).value?.trim();
+  if(!name){document.getElementById('ob-name').focus();return;}
+  S.name=name;S.startDate=new Date().toDateString();save();
+  document.getElementById('onboarding').style.display='none';
+  updateUI();
+}
+document.getElementById('ob-name')?.addEventListener('keydown',e=>{if(e.key==='Enter')startJourney();});
+
+// ══ HELPERS ══
+function escH(s){return(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');}
+function copyCode(btn){
+  const pre=btn.closest('.code-wrap').querySelector('pre');
+  navigator.clipboard.writeText(pre.innerText).then(()=>{btn.textContent='copiado!';btn.classList.add('copied');setTimeout(()=>{btn.textContent='copiar';btn.classList.remove('copied');},2000);});
+}
+
+// ══ SIDEBAR NAV HIGHLIGHT ══
+document.querySelectorAll('section[id], div.boss-challenge[id]').forEach(s=>{
+  new IntersectionObserver(entries=>{
+    entries.forEach(e=>{
+      if(e.isIntersecting){
+        document.querySelectorAll('nav a').forEach(l=>l.classList.remove('active'));
+        const a=document.querySelector(`nav a[id="nav-${e.target.id}"]`);
+        if(a){a.classList.add('active');a.scrollIntoView({block:'nearest',behavior:'smooth'});}
+      }
+    });
+  },{threshold:0.2,rootMargin:'-50px 0px -55% 0px'}).observe(s);
+});
+
+// ══ INIT ══
+(function init(){
+  checkStreak();
+  if(S.name)document.getElementById('onboarding').style.display='none';
+  // Restore quiz states
+  QUIZ_IDS.forEach(id=>{
+    if(S.ex.includes(id)){
+      const q=QUIZZES[id];
+      document.querySelectorAll(`#ex-${id} .quiz-opt`).forEach(o=>{
+        o.disabled=true;
+        if(o.textContent.startsWith(q.correct))o.classList.add('correct');
+      });
+      const fb=document.getElementById('qf-'+id);
+      if(fb){fb.className='quiz-feedback pass';fb.textContent='✅ Já respondido corretamente!';fb.style.display='block';}
+    }
+  });
+  // Restore progressive help buttons
+  CODE_IDS.forEach(id=>{if(S.fails&&S.fails[id])updateHelp(id);});
+  // Restore done badges
+  ALL_IDS.forEach(id=>{
+    if(S.ex.includes(id)){
+      const b=document.getElementById('done-'+id);if(b)b.style.display='flex';
+    }
+  });
+  initNotes();
+  updateUI();
+  // Check daily badge
+  const today=new Date().toDateString();
+  const dailyBtn=document.getElementById('btn-daily');
+  if(dailyBtn&&S.dailyDate===today&&S.dailyDone)dailyBtn.style.borderColor='var(--green)';
+})();
+</script>
+</body>
+</html>
